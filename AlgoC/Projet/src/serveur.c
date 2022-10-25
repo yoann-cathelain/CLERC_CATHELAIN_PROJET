@@ -284,6 +284,107 @@ int renvoi_nom_client(int socketfd)
   return (EXIT_SUCCESS);
 }
 
+int recois_couleurs(int socketfd){
+
+  struct sockaddr_in client_addr;
+  char data[1024];
+
+  unsigned int client_addr_len = sizeof(client_addr);
+
+  // nouvelle connection de client
+  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
+  if (client_socket_fd < 0)
+  {
+    perror("accept");
+    return (EXIT_FAILURE);
+  }
+
+  // la réinitialisation de l'ensemble des données
+  memset(data, 0, sizeof(data));
+
+  // lecture de données envoyées par un client
+  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
+
+  if (data_size < 0)
+  {
+    perror("erreur lecture");
+    return (EXIT_FAILURE);
+  }
+
+  printf("Message recu: %s\n", data);
+
+
+  char *filename = "couleurs.txt";
+ 
+  FILE *fp = fopen(filename, "w");
+  if (fp == NULL)
+  {
+     perror("Error opening your file");
+     return(EXIT_FAILURE);
+  }
+
+  fprintf(fp, "%s" ,data);
+  // close the file
+  fclose(fp);
+
+  renvoie_message(client_socket_fd, "couleurs: enregistre");
+
+  // fermer le socket
+  close(socketfd);
+  return (EXIT_SUCCESS);
+}
+
+int recois_balises(int socketfd){
+
+  struct sockaddr_in client_addr;
+  char data[1024];
+
+  unsigned int client_addr_len = sizeof(client_addr);
+
+  // nouvelle connection de client
+  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
+  if (client_socket_fd < 0)
+  {
+    perror("accept");
+    return (EXIT_FAILURE);
+  }
+
+  // la réinitialisation de l'ensemble des données
+  memset(data, 0, sizeof(data));
+
+  // lecture de données envoyées par un client
+  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
+
+  if (data_size < 0)
+  {
+    perror("erreur lecture");
+    return (EXIT_FAILURE);
+  }
+
+  printf("Message recu: %s\n", data);
+
+
+  char *filename = "balises.txt";
+ 
+  FILE *fp = fopen(filename, "w");
+  if (fp == NULL)
+  {
+     perror("Error opening your file");
+     return(EXIT_FAILURE);
+  }
+
+  fprintf(fp, "%s" ,data);
+  // close the file
+  fclose(fp);
+
+  renvoie_message(client_socket_fd, "balises: enregistre");
+
+  // fermer le socket
+  close(socketfd);
+
+  return EXIT_SUCCESS;
+}
+
 int main()
 {
 

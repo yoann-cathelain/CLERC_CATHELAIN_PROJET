@@ -264,6 +264,75 @@ int envoie_nom_de_client(int socketfd){
   return 0;
 }
 
+int envoie_balises(int socketfd){
+
+  char data[1024];
+  // la réinitialisation de l'ensemble des données
+  memset(data, 0, sizeof(data));
+
+  // Demandez à l'utilisateur le nombre de balises
+  char nb[32]; 
+  char* pos;
+  printf("Combien de balises voulez vous entrer (max 30): ");
+  fgets(nb, 32,  stdin); 
+
+    if((pos=strchr(nb, '\n')) != NULL){
+       *pos = '\0';    
+    }
+
+  strcpy(data, "couleurs: ");
+  strcat(data, nb);
+
+  char balise[16];
+  int nbBal =  0;
+  int conv = sscanf(nb, "%d", &nbBal);
+
+  if(conv == 0){
+   perror("Ce n'est pas un nombre");
+   return(EXIT_FAILURE);
+  }
+
+  // Demande les balises
+  for(int i=0; i<nbBal; i++){
+    printf("Votre Balise: ");
+    fgets(balise, 16, stdin);
+
+    if((pos=strchr(balise, '\n')) != NULL){
+       *pos = '\0';    
+    }
+
+    strcat(data, ",");
+    strcat(data, balise);
+     
+    memset(balise, 0, 16);
+    printf("\n");
+  }
+
+
+  // Ecriture des balises
+  int write_status = write(socketfd, data, strlen(data));
+  if (write_status < 0)
+  {
+    perror("erreur ecriture");
+    exit(EXIT_FAILURE);
+  }
+
+  // la réinitialisation de l'ensemble des données
+  memset(data, 0, sizeof(data));
+
+  // lire les données de la socket
+  int read_status = read(socketfd, data, sizeof(data));
+  if (read_status < 0)
+  {
+    perror("erreur lecture");
+    return -1;
+  }
+
+  printf("Message recu: %s\n", data);
+
+  return 0;
+ 
+}
 
 int main(int argc, char **argv)
 {
@@ -310,6 +379,9 @@ int main(int argc, char **argv)
 	}
 	else if(strcmp(argv[1], "couleurs") == 0){
 	  envoie_couleurs(socketfd);
+	}
+	else if(strcmp(argv[1], "balises") == 0){
+	  envoie_balises(socketfd);
 	}
 	else{
 	envoie_recois_message(socketfd);
