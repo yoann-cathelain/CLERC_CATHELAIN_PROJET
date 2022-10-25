@@ -192,9 +192,11 @@ int renvoi_res_calcul(int socketfd)
   char * datacopy = data;
   int operation;
   char * resultat;
-  int firstoperand = atoi(strtok(datacopy, "calcul: "));
+  int firstoperand =0 ;
+  int convfirstoperand = sscanf((strtok(datacopy, "calcul: ")), "%d", &firstoperand);
   char * operator = strtok(NULL, " ");
-  int secondoperand = atoi(strtok(NULL, " "));
+  int secondoperand = 0;
+  int convsecondoperand = sscanf((strtok(NULL, " ")), "%d", &secondoperand);
 
   if(strcmp(operator, "+") == 0)
   {
