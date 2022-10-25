@@ -221,7 +221,7 @@ int renvoi_res_calcul(int socketfd)
   }
   sscanf(data, "%s", code);
 
-  // Si le message commence par le mot: 'calcul:'
+  // Si le message commence par le mot: 'calcul'
   if (strcmp(code, "calcul:") == 0)
   {
     renvoie_res_calcul(client_socket_fd, resultat);
@@ -325,9 +325,19 @@ int main()
   listen(socketfd, 10);
 
   // Lire et répondre au client
-  //recois_envoie_message(socketfd);
-  //renvoi_nom_client(socketfd);
+  /*if(strcmp(code, "message") == 0)
+  {
+    recois_envoie_message(socketfd);
+  }else if(strcmp(code, "nom") == 0)
+  {
+    renvoi_nom_client(socketfd);
+  }else if(strcmp(code, "calcul") == 0)
+  {
+    renvoi_res_calcul(socketfd);
+  }*/
+
   renvoi_res_calcul(socketfd);
+
 
   return 0;
 }
