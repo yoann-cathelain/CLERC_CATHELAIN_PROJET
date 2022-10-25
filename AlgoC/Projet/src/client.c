@@ -298,6 +298,20 @@ int main(int argc, char **argv)
     perror("connection serveur");
     exit(EXIT_FAILURE);
   }
+<<<<<<< HEAD
+  if (argc == 2 && strcmp(argv[1], "message") == 0)
+  {
+    // envoyer et recevoir un message
+    envoie_recois_message(socketfd);
+  }else if(argc == 2 && strcmp(argv[1], "nom") == 0)
+  {
+    // envoyer et recevoir le nom du client
+    envoie_nom_client(socketfd);
+  }else if (argc == 2 && strcmp(argv[1], "calcul") == 0)
+  {
+    envoie_info_calcul(socketfd);
+  }
+=======
  /* if (argc != 2)
   {	*/ 
 	if(strcmp(argv[1], "nom") == 0){
@@ -314,6 +328,7 @@ int main(int argc, char **argv)
 	}
 
  /* }
+>>>>>>> main
   else
   {*/
     // envoyer et recevoir les couleurs prédominantes
