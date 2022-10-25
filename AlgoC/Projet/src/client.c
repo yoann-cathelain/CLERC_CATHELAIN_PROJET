@@ -113,27 +113,30 @@ int envoie_couleurs(int socketfd, char *pathname)
   }
 
   return 0;
-}
+}*/
 
-*/
-// Envoie des opérateurs et des numéros de calcul
-int envoie_operateur_numeros(int socketfd, char** argv){
+int envoie_info_calcul(int socketfd)
+{
+
   char data[1024];
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  strcpy(data, "calcule: ");
-  strcat(data, argv[2]);
-  strcat(data, " ");
-  strcat(data, argv[3]);
-  strcat(data, " ");
-  strcat(data, argv[4]);
+  // Demandez à l'utilisateur d'entrer un le nom client
+  char calcul[1024];
+  printf("Indiquer le detail du calcul (max 1000 caracteres): ");
+  fgets(calcul, sizeof(calcul), stdin);
+  strcpy(data, "calcul: ");
+  strcat(data, calcul);
 
   int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0){
-   perror("erreur ecriture");
-   exit(EXIT_FAILURE);
+  if (write_status < 0)
+  {
+    perror("erreur ecriture");
+    exit(EXIT_FAILURE);
   }
 
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
   // lire les données de la socket
@@ -144,8 +147,7 @@ int envoie_operateur_numeros(int socketfd, char** argv){
     return -1;
   }
 
-
- printf("Resultat recu: %s\n", data);
+  printf("Resultat recu: %s\n", data);
 
   return 0;
 }
