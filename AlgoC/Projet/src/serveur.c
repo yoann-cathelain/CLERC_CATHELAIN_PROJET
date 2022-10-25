@@ -188,29 +188,41 @@ int renvoi_res_calcul(int socketfd)
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Calcul recu: %s\n", data);
-
+  char code[10];
   char * datacopy = data;
-  char * operator;
   int operation;
   char * resultat;
-  char * token = strtok(datacopy, "calcul: ");
-
-  strcpy(operator, strtok(NULL, " "));
-  int firstoperand = atoi(strtok(NULL, " "));
+  int firstoperand = atoi(strtok(datacopy, "calcul: "));
+  char * operator = strtok(NULL, " ");
   int secondoperand = atoi(strtok(NULL, " "));
 
-  char code[10];
   if(strcmp(operator, "+") == 0)
   {
     operation = firstoperand + secondoperand;
     sprintf(resultat, "%d", operation);
+  }else if(strcmp(operator, "-") == 0) 
+  {
+    operation = firstoperand - secondoperand;
+    sprintf(resultat, "%d", operation);
+  }else if(strcmp(operator, "*") == 0)
+  {
+    operation = firstoperand * secondoperand;
+    sprintf(resultat, "%d", operation);
+  }else if(strcmp(operator, "/") == 0)
+  {
+    operation = firstoperand/secondoperand;
+    sprintf(resultat, "%d", operation);
+  }else 
+  {
+    perror("Erreur operateur ou mauvaise saisie");
+    return(EXIT_FAILURE);
   }
   sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'calcul:'
-  if (strcmp(code, "resultat:") == 0)
+  if (strcmp(code, "calcul:") == 0)
   {
-    renvoie_res_calcul(client_socket_fd, data);
+    renvoie_res_calcul(client_socket_fd, resultat);
   }
   else
   {
