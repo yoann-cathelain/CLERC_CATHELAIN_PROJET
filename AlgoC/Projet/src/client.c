@@ -103,7 +103,9 @@ void analyse(char *pathname, char *data){
 
 
 /*
-int envoie_couleurs(int socketfd, char *pathname)
+ * Envoie les couleurs prédominantes d'une image en paramètre
+ * */
+int envoie_couleursPred(int socketfd, char *pathname)
 {
   char data[1024];
   memset(data, 0, sizeof(data));
@@ -117,7 +119,7 @@ int envoie_couleurs(int socketfd, char *pathname)
   }
 
   return 0;
-}*/
+}
 
 
 /*
@@ -156,7 +158,7 @@ int envoie_info_calcul(int socketfd){
     return -1;
   }
 
-  printf("Resultat recu: %s\n", data);
+  printf("calcul: %s\n", data);
 
   return 0;
 }
@@ -241,7 +243,7 @@ int envoie_couleurs(int socketfd){
 
 
 /*
- * Fonction qui envoie le nom du client au serveur => hostname
+ * Fonction qui envoie le nom du client au serveur puis reçoit sa réponse
  * */
 int envoie_nom_de_client(int socketfd){
 
@@ -414,15 +416,14 @@ int main(int argc, char **argv){
 	else if(strcmp(argv[1], "balises") == 0){
 		envoie_balises(socketfd);
 	}
-	else{
+	else if(strcmp(argv[1], "message") == 0){
 		envoie_recois_message(socketfd);
 	}
+	else{
+		// Envoyer et recevoir les couleurs prédominantes d'une image au format BMP (argv[1])
+		envoie_couleursPred(socketfd, argv[1]);
+	}
 
- }
- else{
-	//envoyer et recevoir les couleurs prédominantes
-	//d'une image au format BMP (argv[1])
-	//envoie_couleurs(socketfd, argv[1]);
  }
 
   close(socketfd);
