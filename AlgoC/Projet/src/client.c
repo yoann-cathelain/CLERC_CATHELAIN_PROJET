@@ -375,7 +375,7 @@ int main(int argc, char **argv)
 	envoie_nom_de_client(socketfd);
 	}
 	else if(strcmp(argv[1], "calcule") == 0){
-	envoie_operateur_numeros(socketfd, argv);
+	envoie_info_calcul(socketfd);
 	}
 	else if(strcmp(argv[1], "couleurs") == 0){
 	  envoie_couleurs(socketfd);

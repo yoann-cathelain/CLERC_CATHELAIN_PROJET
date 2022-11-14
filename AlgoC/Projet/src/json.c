@@ -7,3 +7,14 @@
 /*
  * Code pour le traitement des messages au format JSON
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <json.h>
+
+void json_decode(json_object json_string) 
+{
+    char * base;
+    base = "{}";
+}
+
