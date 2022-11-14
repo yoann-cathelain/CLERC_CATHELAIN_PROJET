@@ -21,6 +21,9 @@
 
 #include "serveur.h"
 
+
+
+
 // Créé un plot de couleur
 void plot(char *data){
 
@@ -62,28 +65,16 @@ void plot(char *data){
   pclose(p);
 }
 
-/* renvoyer un message (*data) au client (client_socket_fd)
+
+
+/* Renvoyer un message (*data) au client (client_socket_fd)
  */
-int renvoie_message(int client_socket_fd, char *data)
-{
+int renvoie_message(int client_socket_fd, char *data){
+
+  // Envoi
   int data_size = write(client_socket_fd, (void *)data, strlen(data));
 
-  if (data_size < 0)
-  {
-    perror("erreur ecriture");
-    return (EXIT_FAILURE);
-  }
-  return (EXIT_SUCCESS);
-}
-
-/* Renvoyer le nom du client contenu dans (*data)
-*/
-int renvoie_nom_client(int client_socket_fd, char *data)
-{
-
-  // Init
-  int data_size = write(client_socket_fd, (void *)data, strlen(data));
-
+  // Erreurs
   if (data_size < 0){
     perror("erreur ecriture");
     return (EXIT_FAILURE);
@@ -92,21 +83,86 @@ int renvoie_nom_client(int client_socket_fd, char *data)
   return (EXIT_SUCCESS);
 }
 
-/* renvoyer le resultat du calcul contenu dans (*data)
+
+
+/* Renvoyer le nom du client contenu dans (*data)
 */
-int renvoie_res_calcul(int client_socket_fd, char *data)
+int renvoie_nom_client(int client_socket_fd, char *data)
 {
+
+  // Envoi
   int data_size = write(client_socket_fd, (void *)data, strlen(data));
-  if (data_size < 0)
-  {
+
+  // Erreurs
+  if (data_size < 0){
     perror("erreur ecriture");
     return (EXIT_FAILURE);
   }
+
   return (EXIT_SUCCESS);
 }
 
 
-/* accepter la nouvelle connection d'un client et lire les données
+
+/* Renvoyer le resultat du calcul contenu dans (*data)
+*/
+int renvoi_res_calcul(int client_socket_fd, char *data)
+{
+
+  // Initialisation
+  printf("Calcul recu: %s\n", data);
+  char *datacopy = data;
+  int operation;
+  char resultat[1024];
+  int firstoperand = 0;
+  int secondoperand = 0;
+
+  // Transformation de la chaîne en calcul
+  char *operator = strtok(datacopy, "calcul: ");
+  sscanf(strtok(NULL, " "), "%d", &firstoperand);
+  sscanf(strtok(NULL, " "), "%d", &secondoperand);
+
+  // Calcul en fonction des opérateurs:
+  // Addition
+  if(strcmp(operator, "+") == 0){
+    operation = firstoperand + secondoperand;
+    sprintf(resultat, "%d", operation);
+  }
+  // Soustraction
+  else if(strcmp(operator, "-") == 0){
+    operation = firstoperand - secondoperand;
+    sprintf(resultat, "%d", operation);
+  }
+  // Multiplication
+  else if(strcmp(operator, "*") == 0){
+    operation = firstoperand * secondoperand;
+    sprintf(resultat, "%d", operation);
+  }
+  // Division
+  else if(strcmp(operator, "/") == 0){
+    operation = firstoperand/secondoperand;
+    sprintf(resultat, "%d", operation);
+  }
+  // Erreur de saisie
+  else {
+    perror("Erreur operateur ou mauvaise saisie");
+    return(EXIT_FAILURE);
+  }
+
+  // Envoi du résultat
+  int data_size = write(client_socket_fd, resultat, 1024);
+  
+  if (data_size < 0){
+    perror("erreur ecriture");
+    return (EXIT_FAILURE);
+  }
+  
+  return (EXIT_SUCCESS);
+}
+
+
+
+/* Accepter la nouvelle connection d'un client et lire les données
  * envoyées par le client. En suite, le serveur envoie un message
  * en retour
  */
@@ -135,8 +191,9 @@ int recois_envoie_message(int socketfd){
     return (EXIT_FAILURE);
   }
 
+
   /*
-   * extraire le code des données envoyées par le client.
+   * Extraire le code des données envoyées par le client.
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Message recu: %s\n", data);
@@ -146,91 +203,54 @@ int recois_envoie_message(int socketfd){
   // Si le message commence par le mot: 'message:'
   if (strcmp(code, "message:") == 0){
 	renvoie_message(client_socket_fd, data);
-
+  }
   // Si le message commence par le mot: 'calcule:'
-  }else if(strcmp(code, "calcule:") == 0){
-	renvoi_res_calcul(client_socket_fd);
-
+  else if(strcmp(code, "calcul:") == 0){
+	renvoi_res_calcul(client_socket_fd, data);
+  }
   // Si le message commence par le mot: 'nom:'
-  }else if(strcmp (code, "nom:") == 0){
+  else if(strcmp (code, "nom:") == 0){
 	renvoie_nom_client(client_socket_fd, data);
   }
-  else{
-    plot(data);
+  // Si le message commence par le mot: 'couleurs:'
+  else if(strcmp(code, "couleurs:") == 0){
+ 	 
+	// Init
+  	char *filename = "couleurs.txt";
+  	FILE *fp = fopen(filename, "w");
+
+	// Erreur d'ouverture
+  	if (fp == NULL){
+     		perror("Error opening your file");
+     		return(EXIT_FAILURE);
+  	}
+
+	// Ecriture du fichier
+  	fprintf(fp, "%s" ,data);
+  	fclose(fp);
+  
+	// Renvoi du message
+  	renvoie_message(client_socket_fd, "couleurs: enregistre");
   }
+  // Si le message commence par le mot: 'balises:'
+  else if (strcmp(code, "balises:") == 0){
+  
+	// Init
+  	char *filename = "balises.txt";
+  	FILE *fp = fopen(filename, "w");
 
-  // Fermer le socket
-  close(socketfd);
-  return (EXIT_SUCCESS);
-}
+	// Erreur d'ouverture
+  	if (fp == NULL){
+     		perror("Error opening your file");
+     		return(EXIT_FAILURE);
+  	}
 
+	// Ecriture du fichier
+  	fprintf(fp, "%s" ,data);
+  	fclose(fp);
 
-int renvoi_res_calcul(int socketfd){
-
-  // Init
-  struct sockaddr_in client_addr;
-  char data[1024];
-  unsigned int client_addr_len = sizeof(client_addr);
-
-  // Nouvelle connection de client
-  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-  if (client_socket_fd < 0)
-  {
-    perror("accept");
-    return (EXIT_FAILURE);
-  }
-
-  // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
-
-  // Lecture de données envoyées par un client
-  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
-
-  if (data_size < 0)
-  {
-    perror("erreur lecture");
-    return (EXIT_FAILURE);
-  }
-
-  /*
-   * extraire le code des données envoyées par le client.
-   * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
-   */
-  printf("Calcul recu: %s\n", data);
-  char code[10];
-  char * datacopy = data;
-  int operation;
-  char * resultat;
-  int firstoperand = atoi(strtok(datacopy, "calcul: "));
-  char * operator = strtok(NULL, " ");
-  int secondoperand = atoi(strtok(NULL, " "));
-
-  if(strcmp(operator, "+") == 0)
-  {
-    operation = firstoperand + secondoperand;
-    sprintf(resultat, "%d", operation);
-  }else if(strcmp(operator, "-") == 0) 
-  {
-    operation = firstoperand - secondoperand;
-    sprintf(resultat, "%d", operation);
-  }else if(strcmp(operator, "*") == 0)
-  {
-    operation = firstoperand * secondoperand;
-    sprintf(resultat, "%d", operation);
-  }else if(strcmp(operator, "/") == 0)
-  {
-    operation = firstoperand/secondoperand;
-    sprintf(resultat, "%d", operation);
-  }else 
-  {
-    perror("Erreur operateur ou mauvaise saisie");
-    return(EXIT_FAILURE);
-  }
-  sscanf(data, "%s", code);
-
-  // Si le message commence par le mot: 'calcul'
-  if (strcmp(code, "calcul:") == 0){
-    renvoie_res_calcul(client_socket_fd, resultat);
+	// Renvoi du message
+  	renvoie_message(client_socket_fd, "balises: enregistre");
   }
   else{
     plot(data);
@@ -241,109 +261,6 @@ int renvoi_res_calcul(int socketfd){
   return (EXIT_SUCCESS);
 }
 
-
-/*
- * Fonction qui reçoit les couleurs
- */
-int recois_couleurs(int socketfd){
-
-  // Init
-  struct sockaddr_in client_addr;
-  char data[1024];
-  unsigned int client_addr_len = sizeof(client_addr);
-
-  // Nouvelle connection de client
-  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-
-  if (client_socket_fd < 0){
-    perror("accept");
-    return (EXIT_FAILURE);
-  }
-
-  // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
-
-  // Lecture de données envoyées par un client
-  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
-
-  if (data_size < 0){
-    perror("erreur lecture");
-    return (EXIT_FAILURE);
-  }
-
-  printf("Message recu: %s\n", data);
-
-
-  char *filename = "couleurs.txt";
- 
-  FILE *fp = fopen(filename, "w");
-  if (fp == NULL)
-  {
-     perror("Error opening your file");
-     return(EXIT_FAILURE);
-  }
-
-  fprintf(fp, "%s" ,data);
-  fclose(fp);
-
-  renvoie_message(client_socket_fd, "couleurs: enregistre");
-
-  // Fermer le socket
-  close(socketfd);
-  return (EXIT_SUCCESS);
-}
-
-/*
- * Fonction qui reçoit les balises
- */
-int recois_balises(int socketfd){
-
-  // Init
-  struct sockaddr_in client_addr;
-  char data[1024];
-  unsigned int client_addr_len = sizeof(client_addr);
-
-  // Nouvelle connection de client
-  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-
-  if (client_socket_fd < 0){
-    perror("accept");
-    return (EXIT_FAILURE);
-  }
-
-  // La réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
-
-  // Lecture de données envoyées par un client
-  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
-
-  if (data_size < 0){
-    perror("erreur lecture");
-    return (EXIT_FAILURE);
-  }
-
-  printf("Message recu: %s\n", data);
-
-
-  char *filename = "balises.txt";
- 
-  FILE *fp = fopen(filename, "w");
-
-  if (fp == NULL){
-     perror("Error opening your file");
-     return(EXIT_FAILURE);
-  }
-
-  fprintf(fp, "%s" ,data);
-  fclose(fp);
-
-  renvoie_message(client_socket_fd, "balises: enregistre");
-
-  // Fermer le socket
-  close(socketfd);
-
-  return EXIT_SUCCESS;
-}
 
 
 
