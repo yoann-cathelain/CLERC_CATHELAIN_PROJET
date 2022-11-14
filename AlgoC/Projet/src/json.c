@@ -11,10 +11,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <json.h>
+#include <fonction.h>
 
-void json_decode(json_object json_string) 
+json_object json_decode(char* json_string) 
 {
-    char * base;
-    base = "{}";
+    json_object json_res;
+    json_res.code = strtok(json_string, "{\"code\": ");
+    json_res.valeurs = strtok(NULL, ",\"valeurs\": ");
+    return json_res;
+}
+
+char * json_encode(json_object *str, char * delim){
+    char * json_string;
+    sprintf(json_string, "{\"code\": %s,", str.code);
+    return json_string;
+
 }
 

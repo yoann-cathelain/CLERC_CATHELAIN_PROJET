@@ -11,15 +11,15 @@
  */
 
  //Fonction permettant de décoder une chaîne de caractère au format JSON
-void json_decode(json_object *);
+json_object json_decode(char *);
 
 //Fonction qui transforme une chaîne de caractère au format JSON
-json_object json_encode(char *);
+char* json_encode(json_object *, char*);
 
 //Structure de données pour un objet json
 typedef struct 
 {
-    char* data;
     char* code;
+    char* valeurs;
 
 }json_object
