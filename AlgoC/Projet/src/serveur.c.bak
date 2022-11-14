@@ -21,8 +21,8 @@
 
 #include "serveur.h"
 
-// Créé un plot de couleur
-void plot(char *data){
+void plot(char *data)
+{
 
   // Extraire le compteur et les couleurs RGB
   FILE *p = popen("gnuplot -persist", "w");
@@ -76,19 +76,16 @@ int renvoie_message(int client_socket_fd, char *data)
   return (EXIT_SUCCESS);
 }
 
-/* Renvoyer le nom du client contenu dans (*data)
+/* renvoyer le nom du client contenu dans (*data)
 */
 int renvoie_nom_client(int client_socket_fd, char *data)
 {
-
-  // Init
   int data_size = write(client_socket_fd, (void *)data, strlen(data));
-
-  if (data_size < 0){
+  if (data_size < 0)
+  {
     perror("erreur ecriture");
     return (EXIT_FAILURE);
   }
-
   return (EXIT_SUCCESS);
 }
 
@@ -105,32 +102,33 @@ int renvoie_res_calcul(int client_socket_fd, char *data)
   return (EXIT_SUCCESS);
 }
 
-
 /* accepter la nouvelle connection d'un client et lire les données
  * envoyées par le client. En suite, le serveur envoie un message
  * en retour
  */
-int recois_envoie_message(int socketfd){
-
-  // Init
+int recois_envoie_message(int socketfd)
+{
   struct sockaddr_in client_addr;
   char data[1024];
+
   unsigned int client_addr_len = sizeof(client_addr);
 
-  // Nouvelle connection de client
+  // nouvelle connection de client
   int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-  if (client_socket_fd < 0){
+  if (client_socket_fd < 0)
+  {
     perror("accept");
     return (EXIT_FAILURE);
   }
 
-  // Réinitialisation de l'ensemble des données
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Lecture de données envoyées par un client
+  // lecture de données envoyées par un client
   int data_size = read(client_socket_fd, (void *)data, sizeof(data));
 
-  if (data_size < 0){
+  if (data_size < 0)
+  {
     perror("erreur lecture");
     return (EXIT_FAILURE);
   }
@@ -144,35 +142,28 @@ int recois_envoie_message(int socketfd){
   sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'message:'
-  if (strcmp(code, "message:") == 0){
-	renvoie_message(client_socket_fd, data);
-
-  // Si le message commence par le mot: 'calcule:'
-  }else if(strcmp(code, "calcule:") == 0){
-	renvoi_res_calcul(client_socket_fd);
-
-  // Si le message commence par le mot: 'nom:'
-  }else if(strcmp (code, "nom:") == 0){
-	renvoie_nom_client(client_socket_fd, data);
+  if (strcmp(code, "message:") == 0)
+  {
+    renvoie_message(client_socket_fd, data);
   }
-  else{
+  else
+  {
     plot(data);
   }
 
-  // Fermer le socket
+  // fermer le socket
   close(socketfd);
   return (EXIT_SUCCESS);
 }
 
-
-int renvoi_res_calcul(int socketfd){
-
-  // Init
+int renvoi_res_calcul(int socketfd)
+{
   struct sockaddr_in client_addr;
   char data[1024];
+
   unsigned int client_addr_len = sizeof(client_addr);
 
-  // Nouvelle connection de client
+  // nouvelle connection de client
   int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
   if (client_socket_fd < 0)
   {
@@ -180,10 +171,10 @@ int renvoi_res_calcul(int socketfd){
     return (EXIT_FAILURE);
   }
 
-  // Réinitialisation de l'ensemble des données
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Lecture de données envoyées par un client
+  // lecture de données envoyées par un client
   int data_size = read(client_socket_fd, (void *)data, sizeof(data));
 
   if (data_size < 0)
@@ -229,44 +220,93 @@ int renvoi_res_calcul(int socketfd){
   sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'calcul'
-  if (strcmp(code, "calcul:") == 0){
+  if (strcmp(code, "calcul:") == 0)
+  {
     renvoie_res_calcul(client_socket_fd, resultat);
   }
-  else{
+  else
+  {
     plot(data);
   }
 
-  // Fermer le socket
+  // fermer le socket
   close(socketfd);
   return (EXIT_SUCCESS);
 }
 
-
-/*
- * Fonction qui reçoit les couleurs
- */
-int recois_couleurs(int socketfd){
-
-  // Init
+int renvoi_nom_client(int socketfd)
+{
   struct sockaddr_in client_addr;
   char data[1024];
+
   unsigned int client_addr_len = sizeof(client_addr);
 
-  // Nouvelle connection de client
+  // nouvelle connection de client
   int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-
-  if (client_socket_fd < 0){
+  if (client_socket_fd < 0)
+  {
     perror("accept");
     return (EXIT_FAILURE);
   }
 
-  // Réinitialisation de l'ensemble des données
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Lecture de données envoyées par un client
+  // lecture de données envoyées par un client
   int data_size = read(client_socket_fd, (void *)data, sizeof(data));
 
-  if (data_size < 0){
+  if (data_size < 0)
+  {
+    perror("erreur lecture");
+    return (EXIT_FAILURE);
+  }
+
+  /*
+   * extraire le code des données envoyées par le client.
+   * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
+   */
+  printf("Nom recu: %s\n", data);
+  char code[10];
+  sscanf(data, "%s", code);
+
+  // Si le message commence par le mot: 'nom:'
+  if (strcmp(code, "nom:") == 0)
+  {
+    renvoie_nom_client(client_socket_fd, data);
+  }
+  else
+  {
+    plot(data);
+  }
+
+  // fermer le socket
+  close(socketfd);
+  return (EXIT_SUCCESS);
+}
+
+int recois_couleurs(int socketfd){
+
+  struct sockaddr_in client_addr;
+  char data[1024];
+
+  unsigned int client_addr_len = sizeof(client_addr);
+
+  // nouvelle connection de client
+  int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
+  if (client_socket_fd < 0)
+  {
+    perror("accept");
+    return (EXIT_FAILURE);
+  }
+
+  // la réinitialisation de l'ensemble des données
+  memset(data, 0, sizeof(data));
+
+  // lecture de données envoyées par un client
+  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
+
+  if (data_size < 0)
+  {
     perror("erreur lecture");
     return (EXIT_FAILURE);
   }
@@ -284,40 +324,39 @@ int recois_couleurs(int socketfd){
   }
 
   fprintf(fp, "%s" ,data);
+  // close the file
   fclose(fp);
 
   renvoie_message(client_socket_fd, "couleurs: enregistre");
 
-  // Fermer le socket
+  // fermer le socket
   close(socketfd);
   return (EXIT_SUCCESS);
 }
 
-/*
- * Fonction qui reçoit les balises
- */
 int recois_balises(int socketfd){
 
-  // Init
   struct sockaddr_in client_addr;
   char data[1024];
+
   unsigned int client_addr_len = sizeof(client_addr);
 
-  // Nouvelle connection de client
+  // nouvelle connection de client
   int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
-
-  if (client_socket_fd < 0){
+  if (client_socket_fd < 0)
+  {
     perror("accept");
     return (EXIT_FAILURE);
   }
 
-  // La réinitialisation de l'ensemble des données
+  // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Lecture de données envoyées par un client
+  // lecture de données envoyées par un client
   int data_size = read(client_socket_fd, (void *)data, sizeof(data));
 
-  if (data_size < 0){
+  if (data_size < 0)
+  {
     perror("erreur lecture");
     return (EXIT_FAILURE);
   }
@@ -328,38 +367,35 @@ int recois_balises(int socketfd){
   char *filename = "balises.txt";
  
   FILE *fp = fopen(filename, "w");
-
-  if (fp == NULL){
+  if (fp == NULL)
+  {
      perror("Error opening your file");
      return(EXIT_FAILURE);
   }
 
   fprintf(fp, "%s" ,data);
+  // close the file
   fclose(fp);
 
   renvoie_message(client_socket_fd, "balises: enregistre");
 
-  // Fermer le socket
+  // fermer le socket
   close(socketfd);
 
   return EXIT_SUCCESS;
 }
 
-
-
-/*
- * Fonction principale => créé le socket, écoute les messages et renvoie les réponses adéquates 
- */
 int main()
 {
 
-  // Init
   int socketfd;
   int bind_status;
+
   struct sockaddr_in server_addr;
 
-  
-  // Creation d'une socket
+  /*
+   * Creation d'une socket
+   */
   socketfd = socket(AF_INET, SOCK_STREAM, 0);
   if (socketfd < 0)
   {
@@ -370,7 +406,7 @@ int main()
   int option = 1;
   setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option));
 
-  // Détails du serveur (adresse et port)
+  // détails du serveur (adresse et port)
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(PORT);
@@ -386,7 +422,21 @@ int main()
 
   // Écouter les messages envoyés par le client
   listen(socketfd, 10);
-  recois_envoie_message(socketfd);
+
+  // Lire et répondre au client
+  /*if(strcmp(code, "message") == 0)
+  {
+    recois_envoie_message(socketfd);
+  }else if(strcmp(code, "nom") == 0)
+  {
+    renvoi_nom_client(socketfd);
+  }else if(strcmp(code, "calcul") == 0)
+  {
+    renvoi_res_calcul(socketfd);
+  }*/
+
+  renvoi_res_calcul(socketfd);
+
 
   return 0;
 }
