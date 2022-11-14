@@ -21,13 +21,13 @@
 #include "client.h"
 #include "bmp.h"
 
+
+
 /*
  * Fonction d'envoi et de réception de messages
  * Il faut un argument : l'identifiant de la socket
  */
-
-int envoie_recois_message(int socketfd)
-{
+int envoie_recois_message(int socketfd){
 
   char data[1024];
   // la réinitialisation de l'ensemble des données
@@ -63,21 +63,26 @@ int envoie_recois_message(int socketfd)
   return 0;
 }
 
-void analyse(char *pathname, char *data)
-{
-  // compte de couleurs
-  couleur_compteur *cc = analyse_bmp_image(pathname);
 
+
+/*
+ * Fonction qui analyse une image
+ * */
+void analyse(char *pathname, char *data){
+
+  // Init
+  couleur_compteur *cc = analyse_bmp_image(pathname);
   int count;
   strcpy(data, "couleurs: ");
   char temp_string[10] = "10,";
-  if (cc->size < 10)
-  {
+  
+  if (cc->size < 10){
     sprintf(temp_string, "%d,", cc->size);
   }
+
   strcat(data, temp_string);
 
-  // choisir 10 couleurs
+  // Choisir 10 couleurs
   for (count = 1; count < 11 && cc->size - count > 0; count++)
   {
     if (cc->compte_bit == BITS32)
@@ -91,14 +96,13 @@ void analyse(char *pathname, char *data)
     strcat(data, temp_string);
   }
 
-  // enlever le dernier virgule
+  // Enlever la dernière virgule
   data[strlen(data) - 1] = '\0';
 }
 
 
 
 /*
-
 int envoie_couleurs(int socketfd, char *pathname)
 {
   char data[1024];
@@ -115,34 +119,39 @@ int envoie_couleurs(int socketfd, char *pathname)
   return 0;
 }*/
 
-int envoie_info_calcul(int socketfd)
-{
+
+/*
+ * Fonction qui envoie les infos du calcul au serveur => opérandes & opérateur
+ * */
+int envoie_info_calcul(int socketfd){
 
   char data[1024];
-  // la réinitialisation de l'ensemble des données
+
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Demandez à l'utilisateur d'entrer un le nom client
+  // Demande les détails du calcul
   char calcul[1024];
-  printf("Indiquer le detail du calcul (max 1000 caracteres): ");
+  printf("Indiquer le detail du calcul (max 1000 caracteres, format: <operateur> <operande> <operande>): ");
   fgets(calcul, sizeof(calcul), stdin);
   strcpy(data, "calcul: ");
   strcat(data, calcul);
 
+  // Envoie les données
   int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0)
-  {
+
+  if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
 
-  // la réinitialisation de l'ensemble des données
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // lire les données de la socket
+  // Lit les données du socket
   int read_status = read(socketfd, data, sizeof(data));
-  if (read_status < 0)
-  {
+
+  if (read_status < 0){
     perror("erreur lecture");
     return -1;
   }
@@ -153,22 +162,27 @@ int envoie_info_calcul(int socketfd)
 }
 
 
+/*
+ * Fonction qui envoie les couleurs au serveur => nombre de couleurs et détail des couleurs
+ * */
 int envoie_couleurs(int socketfd){
 
   char data[1024];
-  // la réinitialisation de l'ensemble des données
+
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Demandez à l'utilisateur le nombre de couleurs
+  // Demande à l'utilisateur le nombre de couleurs
   char nb[32]; 
   char* pos;
   printf("Combien de couleurs voulez vous entrer (max 30): ");
   fgets(nb, 32,  stdin); 
 
-    if((pos=strchr(nb, '\n')) != NULL){
-       *pos = '\0';    
-    }
+  if((pos=strchr(nb, '\n')) != NULL){
+     *pos = '\0';    
+  }
 
+  // Formatage de l'envoi
   strcpy(data, "couleurs: ");
   strcat(data, nb);
 
@@ -176,6 +190,7 @@ int envoie_couleurs(int socketfd){
   int nbCoul =  0;
   int conv = sscanf(nb, "%d", &nbCoul);
 
+  // Erreur de type
   if(conv == 0){
    perror("Ce n'est pas un nombre");
    return(EXIT_FAILURE);
@@ -198,21 +213,23 @@ int envoie_couleurs(int socketfd){
   }
 
 
-  // Ecriture des couleurs
+  // Envoi des couleurs
   int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0)
-  {
+
+  // Erreur d'envoi
+  if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
 
-  // la réinitialisation de l'ensemble des données
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // lire les données de la socket
+  // Lit les données du socket
   int read_status = read(socketfd, data, sizeof(data));
-  if (read_status < 0)
-  {
+
+  // Erreur de lecture
+  if (read_status < 0){
     perror("erreur lecture");
     return -1;
   }
@@ -220,41 +237,44 @@ int envoie_couleurs(int socketfd){
   printf("Message recu: %s\n", data);
 
   return 0;
- 
-
 }
 
 
-// Envoyer le nom
+/*
+ * Fonction qui envoie le nom du client au serveur => hostname
+ * */
 int envoie_nom_de_client(int socketfd){
 
+  // Init et réinitialisation de l'ensemble des données
   char data[1024];
   memset(data, 0, sizeof(data));
-
-
- // Demandez à l'utilisateur d'entrer un message
   char hostname[1024];
   hostname[1023] = '\0';
 
+  // Récupération de l'hostname
   gethostname(hostname, 1023);
   
+  // Formatage de l'envoi
   strcpy(data, "nom: ");
   strcat(data, hostname);
 
+  // Envoie du nom
   int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0)
-  {
+
+  // Erreyr d'envoi
+  if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
 
-  // la réinitialisation de l'ensemble des données
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // lire les données de la socket
+  // lit les données du socket
   int read_status = read(socketfd, data, sizeof(data));
-  if (read_status < 0)
-  {
+  
+  // Erreur de lecture
+  if (read_status < 0){
     perror("erreur lecture");
     return -1;
   }
@@ -264,13 +284,18 @@ int envoie_nom_de_client(int socketfd){
   return 0;
 }
 
+
+/*
+ * Fonction qui envoie les balises au serveur => nombre de balises et détail des balises
+ * */
 int envoie_balises(int socketfd){
 
   char data[1024];
-  // la réinitialisation de l'ensemble des données
+
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // Demandez à l'utilisateur le nombre de balises
+  // Demande à l'utilisateur le nombre de balises
   char nb[32]; 
   char* pos;
   printf("Combien de balises voulez vous entrer (max 30): ");
@@ -280,13 +305,16 @@ int envoie_balises(int socketfd){
        *pos = '\0';    
     }
 
-  strcpy(data, "couleurs: ");
+
+  // Formatage du message à envoyer
+  strcpy(data, "balises: ");
   strcat(data, nb);
 
   char balise[16];
   int nbBal =  0;
   int conv = sscanf(nb, "%d", &nbBal);
 
+  // Erreur de type
   if(conv == 0){
    perror("Ce n'est pas un nombre");
    return(EXIT_FAILURE);
@@ -309,21 +337,23 @@ int envoie_balises(int socketfd){
   }
 
 
-  // Ecriture des balises
+  // Envoi des balises
   int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0)
-  {
+
+  // Erreur d'envoi
+  if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
 
-  // la réinitialisation de l'ensemble des données
+  // Réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 
-  // lire les données de la socket
+  // Lit les données du socket
   int read_status = read(socketfd, data, sizeof(data));
-  if (read_status < 0)
-  {
+
+  // Erreur de lecture
+  if (read_status < 0){
     perror("erreur lecture");
     return -1;
   }
@@ -331,69 +361,69 @@ int envoie_balises(int socketfd){
   printf("Message recu: %s\n", data);
 
   return 0;
- 
 }
 
-int main(int argc, char **argv)
-{
-  int socketfd;
 
+/*
+ * Fonction principale => créé un socket et envoie les infos que le serveur doit traîter
+ * */
+int main(int argc, char **argv){
+
+  // Init
+  int socketfd;
   struct sockaddr_in server_addr;
 
+  // Message à afficher si aucun paramètre n'est donné au client
   if (argc < 2)
   {
     printf("usage: ./client chemin_bmp_image\n");
     return (EXIT_FAILURE);
   }
 
-  /*
-   * Creation d'une socket
-   */
+  // Creation d'un socket et gestion des erreurs
   socketfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (socketfd < 0)
-  {
+  if (socketfd < 0){
     perror("socket");
     exit(EXIT_FAILURE);
   }
 
-  // détails du serveur (adresse et port)
+  // Détails du serveur (adresse et port)
   memset(&server_addr, 0, sizeof(server_addr));
   server_addr.sin_family = AF_INET;
   server_addr.sin_port = htons(PORT);
   server_addr.sin_addr.s_addr = INADDR_ANY;
 
-  // demande de connection au serveur
+  // Demande de connection au serveur
   int connect_status = connect(socketfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-  if (connect_status < 0)
-  {
+  if (connect_status < 0){
     perror("connection serveur");
     exit(EXIT_FAILURE);
   }
- /* if (argc != 2)
-  {	*/ 
+
+  // Si on a un paramètres, on envoie/reçoit le bon code de message
+  if (argc == 2){ 
 	if(strcmp(argv[1], "nom") == 0){
-	envoie_nom_de_client(socketfd);
+		envoie_nom_de_client(socketfd);
 	}
 	else if(strcmp(argv[1], "calcule") == 0){
-	envoie_info_calcul(socketfd);
+		envoie_info_calcul(socketfd);
 	}
 	else if(strcmp(argv[1], "couleurs") == 0){
-	  envoie_couleurs(socketfd);
+		envoie_couleurs(socketfd);
 	}
 	else if(strcmp(argv[1], "balises") == 0){
-	  envoie_balises(socketfd);
+		envoie_balises(socketfd);
 	}
 	else{
-	envoie_recois_message(socketfd);
+		envoie_recois_message(socketfd);
 	}
 
- /* }
-  else
-  {*/
-    // envoyer et recevoir les couleurs prédominantes
-    // d'une image au format BMP (argv[1])
-    //envoie_couleurs(socketfd, argv[1]);
- // }
+ }
+ else{
+	//envoyer et recevoir les couleurs prédominantes
+	//d'une image au format BMP (argv[1])
+	//envoie_couleurs(socketfd, argv[1]);
+ }
 
   close(socketfd);
 }
