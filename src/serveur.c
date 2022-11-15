@@ -42,8 +42,10 @@ void plot(char *data){
   // Récupération du nombre de couleurs
   char *copy = malloc(sizeof(char)*1024);
   strcpy(copy, str);
-  char* nbCoul = strtok(copy, "couleurs: ");
+  char* nbCoul = strtok(copy, "image: ");
   nbCoul = strtok(nbCoul, ",");
+  
+  printf("%s\n", data);
   sscanf(nbCoul, "%d", &intNbCoul);
 
   // Construction de la chaîne de titre
@@ -266,7 +268,6 @@ int recois_envoie_message(int socketfd){
   	fclose(fp);
   
 	// Renvoi du message
-	plot(data);
 	renvoie_message(client_socket_fd, "couleurs: enregistre");
   }
   // Si le message commence par le mot: 'balises:'

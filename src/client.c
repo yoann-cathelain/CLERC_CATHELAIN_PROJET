@@ -75,7 +75,7 @@ void analyse(char *pathname, char *data){
   couleur_compteur *cc = analyse_bmp_image(pathname);
   int count;
   int nbCoul = 31;
-  strcpy(data, "couleurs: ");
+  strcpy(data, "image: ");
 
   //Demande le nombre de couleurs <=30
   while(nbCoul > 30){
