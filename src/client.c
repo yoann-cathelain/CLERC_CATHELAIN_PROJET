@@ -36,54 +36,66 @@ int envoie_recois_message(int socketfd){
   // Demandez à l'utilisateur d'entrer un message
   char message[1024];
   printf("Votre message (max 1000 caracteres): ");
-  fgets(message, sizeof(message), stdin);
-  strcpy(data, "message: ");
-  strcat(data, message);
+	  fgets(message, sizeof(message), stdin);
+	  strcpy(data, "message: ");
+	  strcat(data, message);
 
-  int write_status = write(socketfd, data, strlen(data));
-  if (write_status < 0)
-  {
-    perror("erreur ecriture");
-    exit(EXIT_FAILURE);
-  }
+	  int write_status = write(socketfd, data, strlen(data));
+	  if (write_status < 0)
+	  {
+	    perror("erreur ecriture");
+	    exit(EXIT_FAILURE);
+	  }
 
-  // la réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+	  // la réinitialisation de l'ensemble des données
+	  memset(data, 0, sizeof(data));
 
-  // lire les données de la socket
-  int read_status = read(socketfd, data, sizeof(data));
-  if (read_status < 0)
-  {
-    perror("erreur lecture");
-    return -1;
-  }
+	  // lire les données de la socket
+	  int read_status = read(socketfd, data, sizeof(data));
+	  if (read_status < 0)
+	  {
+	    perror("erreur lecture");
+	    return -1;
+	  }
 
-  printf("Message recu: %s\n", data);
+	  printf("Message recu: %s\n", data);
 
-  return 0;
-}
+	  return 0;
+	}
 
 
 
-/*
- * Fonction qui analyse une image
+	/*
+	 * Fonction qui analyse une image
  * */
 void analyse(char *pathname, char *data){
+
 
   // Init
   couleur_compteur *cc = analyse_bmp_image(pathname);
   int count;
+  int nbCoul = 31;
   strcpy(data, "couleurs: ");
-  char temp_string[10] = "10,";
+
+  //Demande le nombre de couleurs <=30
+  while(nbCoul > 30){
+  	printf("\nNombre de couleurs (<=30): ");
+  	scanf("%d", &nbCoul);
+  }
+
+  // Construction de tempstring qui vaut "nbCoul,"
+  char temp_string[nbCoul];
+  sprintf(temp_string, "%d", nbCoul);
+  strcat(temp_string, ",");
   
-  if (cc->size < 10){
+  if (cc->size < nbCoul){
     sprintf(temp_string, "%d,", cc->size);
   }
 
   strcat(data, temp_string);
 
-  // Choisir 10 couleurs
-  for (count = 1; count < 11 && cc->size - count > 0; count++)
+  // Choisir nbCoul couleurs
+  for (count = 1; count <= nbCoul && cc->size - count > 0; count++)
   {
     if (cc->compte_bit == BITS32)
     {
