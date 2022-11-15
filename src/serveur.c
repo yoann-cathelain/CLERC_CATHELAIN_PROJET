@@ -249,6 +249,7 @@ int recois_envoie_message(int socketfd){
   	fprintf(fp, "%s" ,data);
   	fclose(fp);
 
+
 	// Renvoi du message
   	renvoie_message(client_socket_fd, "balises: enregistre");
   }
