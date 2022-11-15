@@ -24,7 +24,10 @@
 
 
 
-// Créé un plot de couleur
+/*
+ *
+ * Créé un plot de couleur
+ */
 void plot(char *data){
 
   // Extraire le compteur et les couleurs RGB
@@ -32,12 +35,46 @@ void plot(char *data){
   printf("Plot\n");
   int count = 0;
   int n;
+  int intNbCoul;
   char *saveptr = NULL;
   char *str = data;
-  fprintf(p, "set xrange [-15:15]\n");
-  fprintf(p, "set yrange [-15:15]\n");
+  
+  // Récupération du nombre de couleurs
+  char *copy = malloc(sizeof(char)*1024);
+  strcpy(copy, str);
+  char* nbCoul = strtok(copy, "image: ");
+  nbCoul = strtok(nbCoul, ",");
+  
+  printf("%s\n", data);
+  sscanf(nbCoul, "%d", &intNbCoul);
+
+  // Construction de la chaîne de titre
+  char titre[1024] = "set title 'Top ";
+  strcat(titre, nbCoul);
+  strcat(titre, " colors'\n");
+
+  // Construction de l'échelle
+  int scaleInt=1.5*intNbCoul;
+  char* scale = malloc(sizeof(char*)*2);
+  sprintf(scale, "%d", scaleInt);
+  char xrange[1024] = "set xrange [-";
+  strcat(xrange, scale);
+  strcat(xrange, ":");
+  strcat(xrange, scale);
+  strcat(xrange, "]\n");
+
+  char yrange[1024] = "set yrange [-";
+  strcat(yrange, scale);
+  strcat(yrange, ":");
+  strcat(yrange, scale);
+  strcat(yrange, "]\n");
+
+
+  // Présentation
+  fprintf(p, xrange);
+  fprintf(p, yrange);
   fprintf(p, "set style fill transparent solid 0.9 noborder\n");
-  fprintf(p, "set title 'Top 10 colors'\n");
+  fprintf(p, titre);
   fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
   while (1)
   {
@@ -55,8 +92,9 @@ void plot(char *data){
     }
     else
     {
-      // Le numéro 36, parceque 360° (cercle) / 10 couleurs = 36
-      fprintf(p, "0 0 10 %d %d 0x%s\n", (count - 1) * 36, count * 36, token + 1);
+      // On prend numero tel que 360° (cercle) / nbCoul = 36
+      int numero = 360 / intNbCoul;
+      fprintf(p, "0 0 %d %d %d 0x%s\n", intNbCoul, (count-1) * numero, count * numero, token + 1);
     }
     count++;
   }
@@ -230,7 +268,7 @@ int recois_envoie_message(int socketfd){
   	fclose(fp);
   
 	// Renvoi du message
-  	renvoie_message(client_socket_fd, "couleurs: enregistre");
+	renvoie_message(client_socket_fd, "couleurs: enregistre");
   }
   // Si le message commence par le mot: 'balises:'
   else if (strcmp(code, "balises:") == 0){
@@ -248,6 +286,7 @@ int recois_envoie_message(int socketfd){
 	// Ecriture du fichier
   	fprintf(fp, "%s" ,data);
   	fclose(fp);
+
 
 	// Renvoi du message
   	renvoie_message(client_socket_fd, "balises: enregistre");
