@@ -37,18 +37,29 @@ int envoie_recois_message(int socketfd)
 
   // Demandez à l'utilisateur d'entrer un message
   json_object message;
+  char message2[1024];
   char* code = "message";
 
   message.code = malloc(strlen(code)+1);
   message.valeurs = malloc(1024);
 
   printf("Votre message (max 1000 caracteres): ");
-  fgets(message.valeurs, 1024, stdin);
+  fgets(message2, 1024, stdin);
+
+  for(unsigned int i = 0; i < strlen(message2); i++){
+    if(message2[i] == '\x0A'){
+      message2[i] = '\0';
+    }
+  }
   strcpy(message.code, code);
   strcpy(data, message.code);
-  strcat(data, message.valeurs);
+  strcat(data, message2);
+  strcat(message.valeurs, message2);
+
+
 
   data = json_encode(&message, '\x32');
+  printf("%s",data);
   
   int write_status = write(socketfd, data, strlen(data));
   if (write_status < 0)
@@ -128,15 +139,16 @@ int envoie_couleurs(int socketfd, char *pathname)
 int envoie_info_calcul(int socketfd)
 {
 
-  char* datajson;
-  datajson = malloc(sizeof(char)*1024);
+  char* data;
+  //char data[1024];
+  data = malloc(sizeof(char)*1024);
   // la réinitialisation de l'ensemble des données
   //memset(data, 0, sizeof(data));
-  memset(datajson, 0, 1024);
+  memset(data, 0, 1024);
 
   // Demandez à l'utilisateur d'entrer un le nom client
   //char calcul[1024];
-  char* code =" calcule";
+  char* code ="calcul";
   json_object calcul_json;
 
   calcul_json.code = malloc(strlen(code)+1);
@@ -146,16 +158,23 @@ int envoie_info_calcul(int socketfd)
   //fgets(calcul, sizeof(calcul), stdin);
   fgets(calcul_json.valeurs, 1024, stdin);
 
+    for(unsigned int i = 0; i < strlen(calcul_json.valeurs); i++){
+    if(calcul_json.valeurs[i] == '\x0A'){
+      calcul_json.valeurs[i] = '\0';
+    }
+  }
+
   //strcpy(data, "calcul: ");
   //strcat(data, calcul);
 
   strcpy(calcul_json.code, code);
-  strcpy(datajson, calcul_json.code);
-  strcat(datajson,calcul_json.valeurs);
+  strcpy(data, calcul_json.code);
+  strcat(data,calcul_json.valeurs);
 
-  datajson = json_encode(&calcul_json,'\x32');
+  data = json_encode(&calcul_json,'\x32');
+  
 
-  int write_status = write(socketfd, datajson, strlen(datajson));
+  int write_status = write(socketfd, data, strlen(data));
   if (write_status < 0)
   {
     perror("erreur ecriture");
@@ -164,17 +183,17 @@ int envoie_info_calcul(int socketfd)
 
   // la réinitialisation de l'ensemble des données
   //memset(data, 0, sizeof(data));
-  memset(datajson, 0, 1024);
+  memset(data, 0, 1024);
 
   // lire les données de la socket
-  int read_status = read(socketfd, datajson, sizeof(datajson));
+  int read_status = read(socketfd, data, sizeof(data));
   if (read_status < 0)
   {
     perror("erreur lecture");
     return -1;
   }
 
-  printf("Resultat recu: %s\n", datajson);
+  printf("Resultat recu: %s\n", data);
 
   return 0;
 }
@@ -319,6 +338,7 @@ int envoie_nom_de_client(int socketfd){
 int envoie_balises(int socketfd){
 
   char data[1024];
+  //char* data;
   // la réinitialisation de l'ensemble des données
   memset(data, 0, sizeof(data));
 

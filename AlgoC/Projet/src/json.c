@@ -45,7 +45,7 @@ json_object json_decode(char* json_string)
             break;
         }else {
             value = data;
-            data = strtok(NULL, ",");
+            data = strtok(NULL, "[");
 
         }
 
@@ -59,10 +59,12 @@ json_object json_decode(char* json_string)
             code[i] = code[i+1];
         }
     }
-    value = strtok(value, ": [");
-    value = strtok(NULL, ": [");
 
-    for(unsigned int i = 0; i <= strlen(value); i++){
+    value = strtok(value, ": [");
+
+    printf("%s: %s", code, value);
+
+    for(unsigned int i = 0; i < strlen(value); i++){
         if(value[i] == '"' || value[i] == ']'){
             removeChar(value, value[i]);
         }
@@ -79,23 +81,24 @@ json_object json_decode(char* json_string)
 
 char* json_encode(json_object *str, char delim){
 
-    char *json_string = malloc(sizeof(char) * 1024);
+    char *json_string = malloc(sizeof(char) * 4096);
     char* datatmp;
     char* data;
-    datatmp = malloc(sizeof(char)*1024);
-    data = malloc(sizeof(char) * 1024);
+    datatmp = malloc(sizeof(char)*4096);
+    data = malloc(sizeof(char) * 4096);
+
     sprintf(json_string, "{\"code\": \"%s\",\"valeur\": [", str->code);
     if(delim == '\x32'){
         datatmp = strtok(str->valeurs, " ");
         sprintf(data, "\"%s\"", datatmp);
-        strcat(json_string,data);
+        strcat(json_string, data);
         while(datatmp != NULL){
             datatmp = strtok(NULL, " ");
             if(datatmp == NULL){
-            }else {
-                printf("%s", datatmp);        
+                break;
+            }else {     
                 sprintf(data,",\"%s\"",datatmp);
-                strcat(json_string,data);
+                strcat(json_string, data);
             }
         }
         strcat(json_string, "]}");
@@ -106,13 +109,13 @@ char* json_encode(json_object *str, char delim){
         while(datatmp != NULL){
             datatmp = strtok(NULL, ",");
             if(datatmp == NULL){
-
+                strcat(json_string, "]}");
+                break;
             }else {
                 sprintf(data,",\"%s\"", datatmp);
                 strcat(json_string, data);
             }
         }
-        strcat(json_string, "]}");
     }
     free(data);
     return json_string;

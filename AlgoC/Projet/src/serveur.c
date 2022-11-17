@@ -139,18 +139,18 @@ int recois_envoie_message(int socketfd)
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Message recu: %s\n", data);
-  char code[10];
+  /*char code[10];
   sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'message:'
   if (strcmp(code, "message:") == 0)
-  {
+  {*/
     renvoie_message(client_socket_fd, data);
-  }
+  /*}
   else
   {
     plot(data);
-  }
+  }*/
 
   // fermer le socket
   close(socketfd);
@@ -189,13 +189,21 @@ int renvoi_res_calcul(int socketfd)
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Calcul recu: %s\n", data);
-  char code[10];
-  char * datacopy = data;
+
+  json_object info_calcul;
+  info_calcul = json_decode(data);
+
+  printf("%s", info_calcul.valeurs);
+
+  //char code[10];
+  char * datacopy;
+  datacopy = malloc(sizeof(char)*1024);
+  datacopy = info_calcul.valeurs;
   int operation;
   char resultat[1024];
-  int firstoperand = atoi(strtok(datacopy, "calcul: "));
-  char * operator = strtok(NULL, " ");
-  int secondoperand = atoi(strtok(NULL, " "));
+  int firstoperand = atoi(strtok(datacopy, ","));
+  char * operator = strtok(NULL, ",");
+  int secondoperand = atoi(strtok(NULL, ","));
 
   if(strcmp(operator, "+") == 0)
   {
@@ -218,17 +226,17 @@ int renvoi_res_calcul(int socketfd)
     perror("Erreur operateur ou mauvaise saisie");
     return(EXIT_FAILURE);
   }
-  sscanf(data, "%s", code);
+  //sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'calcul'
-  if (strcmp(code, "calcul:") == 0)
-  {
+  /*if (strcmp(code, "calcul:") == 0)
+  {*/
     renvoie_res_calcul(client_socket_fd, resultat);
-  }
+  /*}
   else
   {
     plot(data);
-  }
+  }*/
 
   // fermer le socket
   close(socketfd);
@@ -437,8 +445,9 @@ int main()
   }*/
 
   //recois_balises(socketfd);
-  recois_couleurs(socketfd);
+  //recois_couleurs(socketfd);
   //renvoi_nom_client(socketfd);
-  //recois_envoie_message(socketfd);
+  recois_envoie_message(socketfd);
+  //renvoi_res_calcul(socketfd);
   return 0;
 }
