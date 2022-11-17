@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "serveur.h"
+#include "json.h"
 
 void plot(char *data)
 {
@@ -191,7 +192,7 @@ int renvoi_res_calcul(int socketfd)
   char code[10];
   char * datacopy = data;
   int operation;
-  char * resultat;
+  char resultat[1024];
   int firstoperand = atoi(strtok(datacopy, "calcul: "));
   char * operator = strtok(NULL, " ");
   int secondoperand = atoi(strtok(NULL, " "));
@@ -266,18 +267,18 @@ int renvoi_nom_client(int socketfd)
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Nom recu: %s\n", data);
-  char code[10];
-  sscanf(data, "%s", code);
+  //char code[10];
+  //sscanf(data, "%s", code);
 
   // Si le message commence par le mot: 'nom:'
-  if (strcmp(code, "nom:") == 0)
-  {
-    renvoie_nom_client(client_socket_fd, data);
-  }
+  //if (strcmp(code, "nom:") == 0)
+  //{
+  renvoie_nom_client(client_socket_fd, data);
+  /**}
   else
   {
     plot(data);
-  }
+  }*/
 
   // fermer le socket
   close(socketfd);
@@ -435,8 +436,9 @@ int main()
     renvoi_res_calcul(socketfd);
   }*/
 
-  renvoi_res_calcul(socketfd);
-
-
+  //recois_balises(socketfd);
+  recois_couleurs(socketfd);
+  //renvoi_nom_client(socketfd);
+  //recois_envoie_message(socketfd);
   return 0;
 }
