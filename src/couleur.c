@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <search.h>
+#include "json.h"
 
 // compter les couleurs distincts
 couleur_compteur *compte_couleur(couleur *c, int csize)

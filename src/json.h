@@ -10,16 +10,17 @@
  * Code permettant de stocker différents types de couleurs : format 24 bits (RGB) ou format 32 bits (32). 
  */
 
+//Structure de données pour un objet json
+typedef struct json_object json_object;
+struct json_object
+{
+    char* code;
+    char* valeurs;
+
+};
+
  //Fonction permettant de décoder une chaîne de caractère au format JSON
-void json_decode(json_object *);
+json_object json_decode(char *);
 
 //Fonction qui transforme une chaîne de caractère au format JSON
-json_object json_encode(char *);
-
-//Structure de données pour un objet json
-typedef struct 
-{
-    char* data;
-    char* code;
-
-}json_object
+char* json_encode(json_object *, char);

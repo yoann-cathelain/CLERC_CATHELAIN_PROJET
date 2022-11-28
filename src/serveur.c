@@ -20,6 +20,7 @@
 #include <unistd.h>
 
 #include "serveur.h"
+#include "json.h"
 
 
 
@@ -149,16 +150,22 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
 
   // Initialisation
   printf("Calcul recu: %s\n", data);
-  char *datacopy = data;
+
+  json_object json_calcul;
+  json_calcul = json_decode(data);
+
+
+  char *datacopy = malloc(sizeof(char)*1024);
+  datacopy = json_calcul.valeurs;
   int operation;
   char resultat[1024];
   int firstoperand = 0;
   int secondoperand = 0;
 
   // Transformation de la chaîne en calcul
-  char *operator = strtok(datacopy, "calcul: ");
-  sscanf(strtok(NULL, " "), "%d", &firstoperand);
-  sscanf(strtok(NULL, " "), "%d", &secondoperand);
+  char *operator = strtok(datacopy, ",");
+  sscanf(strtok(NULL, ","), "%d", &firstoperand);
+  sscanf(strtok(NULL, ","), "%d", &secondoperand);
 
   // Calcul en fonction des opérateurs:
   // Addition
@@ -210,6 +217,8 @@ int recois_envoie_message(int socketfd){
   struct sockaddr_in client_addr;
   char data[1024];
   unsigned int client_addr_len = sizeof(client_addr);
+  json_object json_message;
+
 
   // Nouvelle connection de client
   int client_socket_fd = accept(socketfd, (struct sockaddr *)&client_addr, &client_addr_len);
@@ -222,7 +231,7 @@ int recois_envoie_message(int socketfd){
   memset(data, 0, sizeof(data));
 
   // Lecture de données envoyées par un client
-  int data_size = read(client_socket_fd, (void *)data, sizeof(data));
+  int data_size = read(client_socket_fd, (void *)data, 4096);
 
   if (data_size < 0){
     perror("erreur lecture");
@@ -235,23 +244,24 @@ int recois_envoie_message(int socketfd){
    * Les données envoyées par le client peuvent commencer par le mot "message :" ou un autre mot.
    */
   printf("Message recu: %s\n", data);
-  char code[10];
-  sscanf(data, "%s", code);
+  json_message = json_decode(data);
+  //char code[10];
+  //sscanf(json_, "%s", code);
 
   // Si le message commence par le mot: 'message:'
-  if (strcmp(code, "message:") == 0){
+  if (strcmp(json_message.code, "message") == 0){
 	renvoie_message(client_socket_fd, data);
   }
   // Si le message commence par le mot: 'calcule:'
-  else if(strcmp(code, "calcul:") == 0){
+  else if(strcmp(json_message.code, "calcul") == 0){
 	renvoi_res_calcul(client_socket_fd, data);
   }
   // Si le message commence par le mot: 'nom:'
-  else if(strcmp (code, "nom:") == 0){
+  else if(strcmp (json_message.code, "nom") == 0){
 	renvoie_nom_client(client_socket_fd, data);
   }
   // Si le message commence par le mot: 'couleurs:'
-  else if(strcmp(code, "couleurs:") == 0){
+  else if(strcmp(json_message.code, "couleurs") == 0){
  	 
 	// Init
   	char *filename = "couleurs.txt";
@@ -271,7 +281,7 @@ int recois_envoie_message(int socketfd){
 	renvoie_message(client_socket_fd, "couleurs: enregistre");
   }
   // Si le message commence par le mot: 'balises:'
-  else if (strcmp(code, "balises:") == 0){
+  else if (strcmp(json_message.code, "balises") == 0){
   
 	// Init
   	char *filename = "balises.txt";

@@ -20,6 +20,7 @@
 
 #include "client.h"
 #include "bmp.h"
+#include "json.h"
 
 
 
@@ -29,16 +30,33 @@
  */
 int envoie_recois_message(int socketfd){
 
-  char data[1024];
+  char* data;
+  char* code = "nom";
+
+  data = malloc(sizeof(char)*1024);
+  json_object json_message;
+  json_message.code = malloc(strlen(code)+1);
+  json_message.valeurs = malloc(sizeof(char)*1024);
   // la réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Demandez à l'utilisateur d'entrer un message
   char message[1024];
   printf("Votre message (max 1000 caracteres): ");
 	  fgets(message, sizeof(message), stdin);
-	  strcpy(data, "message: ");
+
+  for(unsigned int i = 0; i < strlen(message); i++){
+    if(message[i] == '\x0A'){
+      message[i] = '\0';
+    }
+  }
+
+	  strcpy(data, code);
+    strcpy(json_message.code, code);
 	  strcat(data, message);
+    strcat(json_message.valeurs, message);
+
+    data = json_encode(&json_message, '\x32');
 
 	  int write_status = write(socketfd, data, strlen(data));
 	  if (write_status < 0)
@@ -48,10 +66,10 @@ int envoie_recois_message(int socketfd){
 	  }
 
 	  // la réinitialisation de l'ensemble des données
-	  memset(data, 0, sizeof(data));
+	  memset(data, 0, 1024);
 
 	  // lire les données de la socket
-	  int read_status = read(socketfd, data, sizeof(data));
+	  int read_status = read(socketfd, data, 4096);
 	  if (read_status < 0)
 	  {
 	    perror("erreur lecture");
@@ -139,17 +157,35 @@ int envoie_couleursPred(int socketfd, char *pathname)
  * */
 int envoie_info_calcul(int socketfd){
 
-  char data[1024];
+  char* data;
+  char* code = "calcul";
+
+  data = malloc(sizeof(char)*1024);
+  
+  json_object json_calcul;
+  json_calcul.code = malloc(strlen(code)+1);
+  json_calcul.valeurs = malloc(sizeof(char)*1024);
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Demande les détails du calcul
   char calcul[1024];
   printf("Indiquer le detail du calcul (max 1000 caracteres, format: <operateur> <operande> <operande>): ");
   fgets(calcul, sizeof(calcul), stdin);
-  strcpy(data, "calcul: ");
+
+  for(unsigned int i = 0; i < strlen(calcul); i++){
+    if(calcul[i] == '\x0A'){
+      calcul[i] = '\0';
+    }
+  }
+
+  strcpy(data, code);
+  strcpy(json_calcul.code, code);
   strcat(data, calcul);
+  strcat(json_calcul.valeurs, calcul);
+
+  data = json_encode(&json_calcul, '\x32');
 
   // Envoie les données
   int write_status = write(socketfd, data, strlen(data));
@@ -160,17 +196,17 @@ int envoie_info_calcul(int socketfd){
   }
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Lit les données du socket
-  int read_status = read(socketfd, data, sizeof(data));
+  int read_status = read(socketfd, data, 4096);
 
   if (read_status < 0){
     perror("erreur lecture");
     return -1;
   }
 
-  printf("calcul: %s\n", data);
+  printf("Resultat recu: %s\n", data);
 
   return 0;
 }
@@ -181,10 +217,17 @@ int envoie_info_calcul(int socketfd){
  * */
 int envoie_couleurs(int socketfd){
 
-  char data[1024];
+  char* data;
+  char* code = "couleur";
+
+  data = malloc(sizeof(char)*1024);
+
+  json_object couleur_json;
+  couleur_json.code = malloc(strlen(code)+1);
+  couleur_json.valeurs = malloc(sizeof(char)*1024);
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Demande à l'utilisateur le nombre de couleurs
   char nb[32]; 
@@ -197,8 +240,10 @@ int envoie_couleurs(int socketfd){
   }
 
   // Formatage de l'envoi
-  strcpy(data, "couleurs: ");
+  strcpy(data, code);
+  strcpy(couleur_json.code, code);
   strcat(data, nb);
+  strcat(couleur_json.valeurs, nb);
 
   char couleur[16];
   int nbCoul =  0;
@@ -220,12 +265,15 @@ int envoie_couleurs(int socketfd){
     }
 
     strcat(data, ",");
+    strcat(couleur_json.valeurs, ",");
     strcat(data, couleur);
-     
+    strcat(couleur_json.valeurs, couleur);
+
     memset(couleur, 0, 16);
     printf("\n");
   }
 
+  data = json_encode(&couleur_json, '\x44');
 
   // Envoi des couleurs
   int write_status = write(socketfd, data, strlen(data));
@@ -237,10 +285,10 @@ int envoie_couleurs(int socketfd){
   }
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Lit les données du socket
-  int read_status = read(socketfd, data, sizeof(data));
+  int read_status = read(socketfd, data, 4096);
 
   // Erreur de lecture
   if (read_status < 0){
@@ -260,17 +308,26 @@ int envoie_couleurs(int socketfd){
 int envoie_nom_de_client(int socketfd){
 
   // Init et réinitialisation de l'ensemble des données
-  char data[1024];
-  memset(data, 0, sizeof(data));
-  char hostname[1024];
-  hostname[1023] = '\0';
+  char* data;
+  char* code = "nom";
+  json_object json_nom;
+
+  data = malloc(sizeof(char)*1024);
+  json_nom.code = malloc(sizeof(char)*1024);
+  json_nom.valeurs = malloc(sizeof(char)*1024);
+
+  memset(data, 0, 1024);
 
   // Récupération de l'hostname
-  gethostname(hostname, 1023);
+  gethostname(json_nom.valeurs, 1023);
+  json_nom.valeurs[1023] = '\0';
   
   // Formatage de l'envoi
-  strcpy(data, "nom: ");
-  strcat(data, hostname);
+  strcpy(data, code);
+  strcpy(json_nom.code, code);
+  strcat(data, json_nom.valeurs);
+
+  data = json_encode(&json_nom, '\x32');
 
   // Envoie du nom
   int write_status = write(socketfd, data, strlen(data));
@@ -282,10 +339,10 @@ int envoie_nom_de_client(int socketfd){
   }
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // lit les données du socket
-  int read_status = read(socketfd, data, sizeof(data));
+  int read_status = read(socketfd, data, 4096);
   
   // Erreur de lecture
   if (read_status < 0){
@@ -304,10 +361,15 @@ int envoie_nom_de_client(int socketfd){
  * */
 int envoie_balises(int socketfd){
 
-  char data[1024];
+  char* data;
+  char* code = "balises";
+
+  json_object json_balises;
+  json_balises.code = malloc(strlen(code)+1);
+  json_balises.valeurs = malloc(sizeof(char)*1024);
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Demande à l'utilisateur le nombre de balises
   char nb[32]; 
@@ -321,7 +383,9 @@ int envoie_balises(int socketfd){
 
 
   // Formatage du message à envoyer
-  strcpy(data, "balises: ");
+  strcpy(data, code);
+  strcpy(json_balises.code, code);
+  strcpy(json_balises.valeurs, nb);
   strcat(data, nb);
 
   char balise[16];
@@ -344,12 +408,15 @@ int envoie_balises(int socketfd){
     }
 
     strcat(data, ",");
+    strcat(json_balises.valeurs, ",");
     strcat(data, balise);
+    strcat(json_balises.valeurs, balise);
      
     memset(balise, 0, 16);
     printf("\n");
   }
 
+  data = json_encode(&json_balises, '\x44');
 
   // Envoi des balises
   int write_status = write(socketfd, data, strlen(data));
@@ -361,10 +428,10 @@ int envoie_balises(int socketfd){
   }
 
   // Réinitialisation de l'ensemble des données
-  memset(data, 0, sizeof(data));
+  memset(data, 0, 1024);
 
   // Lit les données du socket
-  int read_status = read(socketfd, data, sizeof(data));
+  int read_status = read(socketfd, data, 4096);
 
   // Erreur de lecture
   if (read_status < 0){
@@ -419,7 +486,7 @@ int main(int argc, char **argv){
 	if(strcmp(argv[1], "nom") == 0){
 		envoie_nom_de_client(socketfd);
 	}
-	else if(strcmp(argv[1], "calcule") == 0){
+	else if(strcmp(argv[1], "calcul") == 0){
 		envoie_info_calcul(socketfd);
 	}
 	else if(strcmp(argv[1], "couleurs") == 0){
