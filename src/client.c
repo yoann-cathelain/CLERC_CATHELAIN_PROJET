@@ -218,7 +218,7 @@ int envoie_info_calcul(int socketfd){
 int envoie_couleurs(int socketfd){
 
   char* data;
-  char* code = "couleur";
+  char* code = "couleurs";
 
   data = malloc(sizeof(char)*1024);
 
@@ -364,31 +364,32 @@ int envoie_balises(int socketfd){
   char* data;
   char* code = "balises";
 
-  json_object json_balises;
-  json_balises.code = malloc(strlen(code)+1);
-  json_balises.valeurs = malloc(sizeof(char)*1024);
+  data = malloc(sizeof(char)*1024);
+
+  json_object balises_json;
+  balises_json.code = malloc(strlen(code)+1);
+  balises_json.valeurs = malloc(sizeof(char)*1024);
 
   // Réinitialisation de l'ensemble des données
   memset(data, 0, 1024);
 
-  // Demande à l'utilisateur le nombre de balises
+  // Demande à l'utilisateur le nombre de couleurs
   char nb[32]; 
   char* pos;
   printf("Combien de balises voulez vous entrer (max 30): ");
   fgets(nb, 32,  stdin); 
 
-    if((pos=strchr(nb, '\n')) != NULL){
-       *pos = '\0';    
-    }
+  if((pos=strchr(nb, '\n')) != NULL){
+     *pos = '\0';    
+  }
 
-
-  // Formatage du message à envoyer
+  // Formatage de l'envoi
   strcpy(data, code);
-  strcpy(json_balises.code, code);
-  strcpy(json_balises.valeurs, nb);
+  strcpy(balises_json.code, code);
   strcat(data, nb);
+  strcat(balises_json.valeurs, nb);
 
-  char balise[16];
+  char balises[16];
   int nbBal =  0;
   int conv = sscanf(nb, "%d", &nbBal);
 
@@ -400,23 +401,23 @@ int envoie_balises(int socketfd){
 
   // Demande les balises
   for(int i=0; i<nbBal; i++){
-    printf("Votre Balise: ");
-    fgets(balise, 16, stdin);
+    printf("Votre balise: ");
+    fgets(balises, 16, stdin);
 
-    if((pos=strchr(balise, '\n')) != NULL){
+    if((pos=strchr(balises, '\n')) != NULL){
        *pos = '\0';    
     }
 
     strcat(data, ",");
-    strcat(json_balises.valeurs, ",");
-    strcat(data, balise);
-    strcat(json_balises.valeurs, balise);
-     
-    memset(balise, 0, 16);
+    strcat(balises_json.valeurs, ",");
+    strcat(data, balises);
+    strcat(balises_json.valeurs, balises);
+
+    memset(balises, 0, 16);
     printf("\n");
   }
 
-  data = json_encode(&json_balises, '\x44');
+  data = json_encode(&balises_json, '\x44');
 
   // Envoi des balises
   int write_status = write(socketfd, data, strlen(data));
@@ -441,7 +442,8 @@ int envoie_balises(int socketfd){
 
   printf("Message recu: %s\n", data);
 
-  return 0;
+
+ return 0;
 }
 
 
@@ -499,6 +501,8 @@ int main(int argc, char **argv){
 		envoie_recois_message(socketfd);
 	}
 	else{
+
+		printf("Salut cest moi tchoupi");
 		// Envoyer et recevoir les couleurs prédominantes d'une image au format BMP (argv[1])
 		envoie_couleursPred(socketfd, argv[1]);
 	}
@@ -507,3 +511,4 @@ int main(int argc, char **argv){
 
   close(socketfd);
 }
+

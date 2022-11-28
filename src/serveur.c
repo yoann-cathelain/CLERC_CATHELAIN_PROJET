@@ -149,8 +149,6 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
 {
 
   // Initialisation
-  printf("Calcul recu: %s\n", data);
-
   json_object json_calcul;
   json_calcul = json_decode(data);
 
@@ -262,8 +260,11 @@ int recois_envoie_message(int socketfd){
   }
   // Si le message commence par le mot: 'couleurs:'
   else if(strcmp(json_message.code, "couleurs") == 0){
- 	 
+ 
 	// Init
+	json_object json_res;
+	json_res.code = malloc(sizeof(char)*1024);
+	json_res.valeurs = malloc(sizeof(char)*1024);
   	char *filename = "couleurs.txt";
   	FILE *fp = fopen(filename, "w");
 
@@ -274,16 +275,21 @@ int recois_envoie_message(int socketfd){
   	}
 
 	// Ecriture du fichier
-  	fprintf(fp, "%s" ,data);
+	json_res.code = json_message.code;
+	json_res.valeurs = "enregistre";
+  	fprintf(fp, "%s" ,json_message.valeurs);
   	fclose(fp);
   
 	// Renvoi du message
-	renvoie_message(client_socket_fd, "couleurs: enregistre");
+	renvoie_message(client_socket_fd, json_encode(&json_res, '\x32'));
   }
   // Si le message commence par le mot: 'balises:'
   else if (strcmp(json_message.code, "balises") == 0){
   
 	// Init
+	json_object json_res;
+	json_res.code = malloc(sizeof(char)*1024);
+	json_res.valeurs = malloc(sizeof(char)*1024);
   	char *filename = "balises.txt";
   	FILE *fp = fopen(filename, "w");
 
@@ -294,12 +300,14 @@ int recois_envoie_message(int socketfd){
   	}
 
 	// Ecriture du fichier
-  	fprintf(fp, "%s" ,data);
+	json_res.code = json_message.code;
+	json_res.valeurs = "enregistre";
+  	fprintf(fp, "%s" ,json_message.valeurs);
   	fclose(fp);
 
 
 	// Renvoi du message
-  	renvoie_message(client_socket_fd, "balises: enregistre");
+  	renvoie_message(client_socket_fd, json_encode(&json_res, '\x32'));
   }
   else{
     plot(data);
