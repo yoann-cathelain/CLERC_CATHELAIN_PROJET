@@ -502,7 +502,6 @@ int main(int argc, char **argv){
 	}
 	else{
 
-		printf("Salut cest moi tchoupi");
 		// Envoyer et recevoir les couleurs prédominantes d'une image au format BMP (argv[1])
 		envoie_couleursPred(socketfd, argv[1]);
 	}

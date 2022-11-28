@@ -149,6 +149,9 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
 {
 
   // Initialisation
+  json_object json_resultat;
+  json_resultat.code = malloc(sizeof(char)*1024);
+  json_resultat.valeurs = malloc(sizeof(char)*1024);
   json_object json_calcul;
   json_calcul = json_decode(data);
 
@@ -193,7 +196,9 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
   }
 
   // Envoi du résultat
-  int data_size = write(client_socket_fd, resultat, 1024);
+  json_resultat.code = "Resultat";
+  json_resultat.valeurs = resultat;
+  int data_size = write(client_socket_fd, json_encode(&json_resultat, '\x32'), 1024);
   
   if (data_size < 0){
     perror("erreur ecriture");
