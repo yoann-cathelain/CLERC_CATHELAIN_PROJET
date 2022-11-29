@@ -148,7 +148,68 @@ int renvoie_nom_client(int client_socket_fd, char *data)
 */
 int renvoi_res_calcul(int client_socket_fd, char *data)
 {
+  // Init
+  int result = 0;
+  int operand = 0;
 
+  // Récupération des données JSON
+  json_object json_data = json_decode(data);
+  char* valeurs = json_data.valeurs;
+  
+  // Récupération du code d'opération
+  char* token = strtok(valeurs, ",");
+
+  // Gestion du code d'opération
+   // Addition
+  if(strcmp(token, "+") == 0){
+
+    while( token != NULL ) 
+    {
+      result += operand;
+    }
+
+    printf("%d", result);
+  }
+  // Soustraction
+  else if(strcmp(token, "-") == 0){
+    printf("Sub");
+  }
+  // Multiplication
+  else if(strcmp(token, "*") == 0){
+    printf("Multi");
+  }
+  // Division
+  else if(strcmp(token, "/") == 0){
+    printf("Div");
+  }
+    // Minimum
+  else if(strcmp(token, "minimum") == 0){
+    printf("Min");
+  }
+  // Maximum
+  else if(strcmp(token, "maximum") == 0){
+    printf("Max");
+  }
+  // Moyenne
+  else if(strcmp(token, "moyenne") == 0){
+    printf("Avg");
+  }
+  // Ecart-type
+  else if(strcmp(token, "ecart-type") == 0){
+    printf("Var");
+  }
+  // Erreur de saisie
+  else {
+    perror("Erreur operateur ou mauvaise saisie");
+    return(EXIT_FAILURE);
+  }
+
+  // Renvoi des données
+
+
+  return(EXIT_SUCCESS);
+
+/*
   // Initialisation
   json_object json_resultat;
   json_resultat.code = malloc(sizeof(char)*1024);
@@ -190,6 +251,24 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     operation = firstoperand/secondoperand;
     sprintf(resultat, "%d", operation);
   }
+    // Minimum
+  else if(strcmp(operator, "minimum") == 0){
+    printf("Min");
+  }
+  // Maximum
+  else if(strcmp(operator, "maximum") == 0){
+    printf("Max");
+
+  }
+  // Moyenne
+  else if(strcmp(operator, "moyenne") == 0){
+    printf("Avg");
+
+  }
+  // Ecart-type
+  else if(strcmp(operator, "ecart-type") == 0){
+    printf("Var");
+  }
   // Erreur de saisie
   else {
     perror("Erreur operateur ou mauvaise saisie");
@@ -206,7 +285,7 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     return (EXIT_FAILURE);
   }
   
-  return (EXIT_SUCCESS);
+  return (EXIT_SUCCESS);*/
 }
 
 
