@@ -163,12 +163,14 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
    // Addition
   if(strcmp(token, "+") == 0){
 
-    while( token != NULL ) 
+    token = strtok(NULL, ",");
+    
+    while(token != NULL) 
     {
-      result += operand;
+	    sscanf(token,"%d", &operand);
+	    result += operand;
+	    token = strtok(NULL, ",");
     }
-
-    printf("%d", result);
   }
   // Soustraction
   else if(strcmp(token, "-") == 0){
