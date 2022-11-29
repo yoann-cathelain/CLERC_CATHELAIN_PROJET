@@ -21,6 +21,7 @@
 #include "client.h"
 #include "bmp.h"
 #include "json.h"
+#include "validation.h"
 
 
 
@@ -186,6 +187,11 @@ int envoie_info_calcul(int socketfd){
   strcat(json_calcul.valeurs, calcul);
 
   data = json_encode(&json_calcul, '\x32');
+  if(validate_json(data) != 0) {
+    printf("JSON valide");
+  }else {
+    printf("JSON non valide");
+  }
 
   // Envoie les données
   int write_status = write(socketfd, data, strlen(data));
