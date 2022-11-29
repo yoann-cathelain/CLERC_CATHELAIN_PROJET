@@ -73,11 +73,11 @@ void plot(char *data){
 
 
   // Présentation
-  fprintf(p, xrange);
-  fprintf(p, yrange);
-  fprintf(p, "set style fill transparent solid 0.9 noborder\n");
-  fprintf(p, titre);
-  fprintf(p, "plot '-' with circles lc rgbcolor variable\n");
+  fprintf(p, "%s", xrange);
+  fprintf(p, "%s", yrange);
+  fprintf(p, "%s", "set style fill transparent solid 0.9 noborder\n");
+  fprintf(p, "%s", titre);
+  fprintf(p, "%s", "plot '-' with circles lc rgbcolor variable\n");
   while (1)
   {
     char *token = strtok_r(str, ",", &saveptr);
