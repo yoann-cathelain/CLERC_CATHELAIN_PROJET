@@ -91,9 +91,13 @@ void analyse(char *pathname, char *data){
 
   // Init
   couleur_compteur *cc = analyse_bmp_image(pathname);
+  json_object json_image;
+  char* code = "image";
+  json_image.code = malloc(strlen(code)+1);
+  json_image.valeurs = malloc(sizeof(char)*1024);
   int count;
   int nbCoul = 31;
-  strcpy(data, "image: ");
+  strcpy(data, "");
 
   //Demande le nombre de couleurs <=30
   while(nbCoul > 30){
@@ -127,7 +131,12 @@ void analyse(char *pathname, char *data){
   }
 
   // Enlever la dernière virgule
-  data[strlen(data) - 1] = '\0';
+  data[strlen(data) - 1] = '\x32';
+
+  // Formatage du JSON
+  json_image.code = code;
+  json_image.valeurs = data;
+  strcpy(data, json_encode(&json_image, '\x44'));
 }
 
 
@@ -137,8 +146,7 @@ void analyse(char *pathname, char *data){
  * */
 int envoie_couleursPred(int socketfd, char *pathname)
 {
-  char data[1024];
-  memset(data, 0, sizeof(data));
+  char* data = malloc(sizeof(char)*1024);
   analyse(pathname, data);
 
   int write_status = write(socketfd, data, strlen(data));
@@ -147,7 +155,8 @@ int envoie_couleursPred(int socketfd, char *pathname)
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
-
+ 
+  free(data);
   return 0;
 }
 

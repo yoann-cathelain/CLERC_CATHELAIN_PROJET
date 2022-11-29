@@ -35,10 +35,11 @@ void plot(char *data){
   FILE *p = popen("gnuplot -persist", "w");
   printf("Plot\n");
   int count = 0;
+  json_object json_image = json_decode(data);
   int n;
   int intNbCoul;
   char *saveptr = NULL;
-  char *str = data;
+  char *str = json_image.valeurs;
   
   // Récupération du nombre de couleurs
   char *copy = malloc(sizeof(char)*1024);
