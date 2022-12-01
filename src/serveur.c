@@ -174,11 +174,33 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
   }
   // Soustraction
   else if(strcmp(token, "-") == 0){
-    printf("Sub");
+
+  token = strtok(NULL, ",");
+  sscanf(token,"%d", &result);
+
+  result -= operand;
+
+  while(token != NULL){
+	    token = strtok(NULL, ",");
+
+      // Sécurité nombre d'opérandes impaire
+      if(token != NULL){
+        sscanf(token,"%d", &operand);
+        result -= operand;
+      }
+  }
   }
   // Multiplication
   else if(strcmp(token, "*") == 0){
-    printf("Multi");
+    result = 1;
+    token = strtok(NULL, ",");
+    
+    while(token != NULL) 
+    {
+	    sscanf(token,"%d", &operand);
+	    result *= operand;
+	    token = strtok(NULL, ",");
+    }
   }
   // Division
   else if(strcmp(token, "/") == 0){
