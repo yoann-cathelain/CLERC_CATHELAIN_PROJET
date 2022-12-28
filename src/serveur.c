@@ -149,8 +149,8 @@ int renvoie_nom_client(int client_socket_fd, char *data)
 int renvoi_res_calcul(int client_socket_fd, char *data)
 {
   // Init
-  int result = 0;
-  int operand = 0;
+  float result = 0;
+  float operand = 0;
 
   // Récupération des données JSON
   json_object json_data = json_decode(data);
@@ -167,7 +167,7 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     
     while(token != NULL) 
     {
-	    sscanf(token,"%d", &operand);
+	    sscanf(token,"%f", &operand);
 	    result += operand;
 	    token = strtok(NULL, ",");
     }
@@ -176,7 +176,7 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
   else if(strcmp(token, "-") == 0){
 
   token = strtok(NULL, ",");
-  sscanf(token,"%d", &result);
+  sscanf(token,"%f", &result);
 
   result -= operand;
 
@@ -185,9 +185,10 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
 
       // Sécurité nombre d'opérandes impaire
       if(token != NULL){
-        sscanf(token,"%d", &operand);
+        sscanf(token,"%f", &operand);
         result -= operand;
       }
+      
   }
   }
   // Multiplication
@@ -197,26 +198,83 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     
     while(token != NULL) 
     {
-	    sscanf(token,"%d", &operand);
+	    sscanf(token,"%f", &operand);
 	    result *= operand;
 	    token = strtok(NULL, ",");
     }
   }
   // Division
   else if(strcmp(token, "/") == 0){
-    printf("Div");
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    // Sécurité division par 0
+    operand = 1;
+
+    result /= operand;
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+          result /= operand;
+        }
+    }
   }
     // Minimum
   else if(strcmp(token, "minimum") == 0){
-    printf("Min");
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+
+          if(operand < result){
+            result = operand;
+          }
+        }
+    }
   }
   // Maximum
   else if(strcmp(token, "maximum") == 0){
-    printf("Max");
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+
+          if(operand > result){
+            result = operand;
+          }
+        }
+    }
   }
   // Moyenne
   else if(strcmp(token, "moyenne") == 0){
-    printf("Avg");
+    
+    token = strtok(NULL, ",");
+    int i = 0;
+
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+	    result += operand;
+	    token = strtok(NULL, ",");
+      i++;
+    }    
+
+    result /= i;
   }
   // Ecart-type
   else if(strcmp(token, "ecart-type") == 0){
