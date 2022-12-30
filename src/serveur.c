@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "serveur.h"
 #include "json.h"
@@ -151,6 +152,9 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
   // Init
   float result = 0;
   float operand = 0;
+  json_object json_resultat;
+  json_resultat.code = malloc(sizeof(char)*1024);
+  json_resultat.valeurs = malloc(sizeof(char)*1024);
 
   // Récupération des données JSON
   json_object json_data = json_decode(data);
@@ -276,9 +280,34 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
 
     result /= i;
   }
-  // Ecart-type
+  // Ecart-type: sqrt(e(x^2)-e(x)^2)
   else if(strcmp(token, "ecart-type") == 0){
-    printf("Var");
+
+    token = strtok(NULL, ",");
+    int i = 0;
+    float squaredOperand = 0;
+    float squaredResult = 0;
+
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+
+      // Construction de e(x)
+	    result += operand;
+
+      // Construction de e(x^2)
+      squaredOperand = operand * operand;
+      squaredResult += squaredOperand;
+
+	    token = strtok(NULL, ",");
+      i++;
+    }    
+
+    squaredResult /= i;
+    result /= i;
+
+    result = sqrt(squaredResult - (result * result));
+    
   }
   // Erreur de saisie
   else {
@@ -287,77 +316,9 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
   }
 
   // Renvoi des données
+  char* resultat = malloc(sizeof(char)*1024);
+  sprintf(resultat, "%f", result);
 
-
-  return(EXIT_SUCCESS);
-
-/*
-  // Initialisation
-  json_object json_resultat;
-  json_resultat.code = malloc(sizeof(char)*1024);
-  json_resultat.valeurs = malloc(sizeof(char)*1024);
-  json_object json_calcul;
-  json_calcul = json_decode(data);
-
-
-  char *datacopy = malloc(sizeof(char)*1024);
-  datacopy = json_calcul.valeurs;
-  int operation;
-  char resultat[1024];
-  int firstoperand = 0;
-  int secondoperand = 0;
-
-  // Transformation de la chaîne en calcul
-  char *operator = strtok(datacopy, ",");
-  sscanf(strtok(NULL, ","), "%d", &firstoperand);
-  sscanf(strtok(NULL, ","), "%d", &secondoperand);
-
-  // Calcul en fonction des opérateurs:
-  // Addition
-  if(strcmp(operator, "+") == 0){
-    operation = firstoperand + secondoperand;
-    sprintf(resultat, "%d", operation);
-  }
-  // Soustraction
-  else if(strcmp(operator, "-") == 0){
-    operation = firstoperand - secondoperand;
-    sprintf(resultat, "%d", operation);
-  }
-  // Multiplication
-  else if(strcmp(operator, "*") == 0){
-    operation = firstoperand * secondoperand;
-    sprintf(resultat, "%d", operation);
-  }
-  // Division
-  else if(strcmp(operator, "/") == 0){
-    operation = firstoperand/secondoperand;
-    sprintf(resultat, "%d", operation);
-  }
-    // Minimum
-  else if(strcmp(operator, "minimum") == 0){
-    printf("Min");
-  }
-  // Maximum
-  else if(strcmp(operator, "maximum") == 0){
-    printf("Max");
-
-  }
-  // Moyenne
-  else if(strcmp(operator, "moyenne") == 0){
-    printf("Avg");
-
-  }
-  // Ecart-type
-  else if(strcmp(operator, "ecart-type") == 0){
-    printf("Var");
-  }
-  // Erreur de saisie
-  else {
-    perror("Erreur operateur ou mauvaise saisie");
-    return(EXIT_FAILURE);
-  }
-
-  // Envoi du résultat
   json_resultat.code = "Resultat";
   json_resultat.valeurs = resultat;
   int data_size = write(client_socket_fd, json_encode(&json_resultat, '\x32'), 1024);
@@ -367,7 +328,7 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     return (EXIT_FAILURE);
   }
   
-  return (EXIT_SUCCESS);*/
+  return (EXIT_SUCCESS);
 }
 
 
