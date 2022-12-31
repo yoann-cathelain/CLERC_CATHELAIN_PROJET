@@ -18,6 +18,7 @@ make
 * stdlib
 * string
 * unistd
+* math
 
 # Références
 * Documentation de fonctions C: https://koor.fr
