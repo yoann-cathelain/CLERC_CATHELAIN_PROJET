@@ -1,3 +1,14 @@
+# Installation
+Exécuter les commandes suivantes ce qui créera les exécutables ```serveur``` et ```client```:
+```bash
+git clone https://github.com/yoann-cathelain/CLERC_CATHELAIN_PROJET
+cd CLERC_CATHELAIN_PROJET/src
+make
+```
+
+# Utilisation
+
+
 # Bibliothèques
 * sys/types
 * sys/socket
