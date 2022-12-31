@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "serveur.h"
 #include "json.h"
@@ -148,47 +149,165 @@ int renvoie_nom_client(int client_socket_fd, char *data)
 */
 int renvoi_res_calcul(int client_socket_fd, char *data)
 {
-
-  // Initialisation
+  // Init
+  float result = 0;
+  float operand = 0;
   json_object json_resultat;
   json_resultat.code = malloc(sizeof(char)*1024);
   json_resultat.valeurs = malloc(sizeof(char)*1024);
-  json_object json_calcul;
-  json_calcul = json_decode(data);
 
+  // Récupération des données JSON
+  json_object json_data = json_decode(data);
+  char* valeurs = json_data.valeurs;
+  
+  // Récupération du code d'opération
+  char* token = strtok(valeurs, ",");
 
-  char *datacopy = malloc(sizeof(char)*1024);
-  datacopy = json_calcul.valeurs;
-  int operation;
-  char resultat[1024];
-  int firstoperand = 0;
-  int secondoperand = 0;
+  // Gestion du code d'opération
+   // Addition
+  if(strcmp(token, "+") == 0){
 
-  // Transformation de la chaîne en calcul
-  char *operator = strtok(datacopy, ",");
-  sscanf(strtok(NULL, ","), "%d", &firstoperand);
-  sscanf(strtok(NULL, ","), "%d", &secondoperand);
-
-  // Calcul en fonction des opérateurs:
-  // Addition
-  if(strcmp(operator, "+") == 0){
-    operation = firstoperand + secondoperand;
-    sprintf(resultat, "%d", operation);
+    token = strtok(NULL, ",");
+    
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+	    result += operand;
+	    token = strtok(NULL, ",");
+    }
   }
   // Soustraction
-  else if(strcmp(operator, "-") == 0){
-    operation = firstoperand - secondoperand;
-    sprintf(resultat, "%d", operation);
+  else if(strcmp(token, "-") == 0){
+
+  token = strtok(NULL, ",");
+  sscanf(token,"%f", &result);
+
+  result -= operand;
+
+  while(token != NULL){
+	    token = strtok(NULL, ",");
+
+      // Sécurité nombre d'opérandes impaire
+      if(token != NULL){
+        sscanf(token,"%f", &operand);
+        result -= operand;
+      }
+      
+  }
   }
   // Multiplication
-  else if(strcmp(operator, "*") == 0){
-    operation = firstoperand * secondoperand;
-    sprintf(resultat, "%d", operation);
+  else if(strcmp(token, "*") == 0){
+    result = 1;
+    token = strtok(NULL, ",");
+    
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+	    result *= operand;
+	    token = strtok(NULL, ",");
+    }
   }
   // Division
-  else if(strcmp(operator, "/") == 0){
-    operation = firstoperand/secondoperand;
-    sprintf(resultat, "%d", operation);
+  else if(strcmp(token, "/") == 0){
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    // Sécurité division par 0
+    operand = 1;
+
+    result /= operand;
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+          result /= operand;
+        }
+    }
+  }
+    // Minimum
+  else if(strcmp(token, "minimum") == 0){
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+
+          if(operand < result){
+            result = operand;
+          }
+        }
+    }
+  }
+  // Maximum
+  else if(strcmp(token, "maximum") == 0){
+
+    token = strtok(NULL, ",");
+    sscanf(token,"%f", &result);
+
+    while(token != NULL){
+        token = strtok(NULL, ",");
+        // Sécurité nombre d'opérandes impaire
+        if(token != NULL){
+          sscanf(token,"%f", &operand);
+
+          if(operand > result){
+            result = operand;
+          }
+        }
+    }
+  }
+  // Moyenne
+  else if(strcmp(token, "moyenne") == 0){
+    
+    token = strtok(NULL, ",");
+    int i = 0;
+
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+	    result += operand;
+	    token = strtok(NULL, ",");
+      i++;
+    }    
+
+    result /= i;
+  }
+  // Ecart-type: sqrt(e(x^2)-e(x)^2)
+  else if(strcmp(token, "ecart-type") == 0){
+
+    token = strtok(NULL, ",");
+    int i = 0;
+    float squaredOperand = 0;
+    float squaredResult = 0;
+
+    while(token != NULL) 
+    {
+	    sscanf(token,"%f", &operand);
+
+      // Construction de e(x)
+	    result += operand;
+
+      // Construction de e(x^2)
+      squaredOperand = operand * operand;
+      squaredResult += squaredOperand;
+
+	    token = strtok(NULL, ",");
+      i++;
+    }    
+
+    squaredResult /= i;
+    result /= i;
+
+    result = sqrt(squaredResult - (result * result));
+    
   }
   // Erreur de saisie
   else {
@@ -196,7 +315,10 @@ int renvoi_res_calcul(int client_socket_fd, char *data)
     return(EXIT_FAILURE);
   }
 
-  // Envoi du résultat
+  // Renvoi des données
+  char* resultat = malloc(sizeof(char)*1024);
+  sprintf(resultat, "%f", result);
+
   json_resultat.code = "Resultat";
   json_resultat.valeurs = resultat;
   int data_size = write(client_socket_fd, json_encode(&json_resultat, '\x32'), 1024);
