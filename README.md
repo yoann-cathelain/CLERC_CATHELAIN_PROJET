@@ -51,7 +51,14 @@ moyenne 12 15 19.5 8.2
 Les codes d'opérateurs sont les suivants:
 
 ```text
-+ pour l'addition, - pour la soustraction, * pour la multiplication, / pour la division, minimum pour le minimum, maximum pour le maximum, moyenne pour la moyenne, et ecart-type pour l'écart-type.
++ pour l'addition
+- pour la soustraction
+* pour la multiplication
+/ pour la division
+minimum pour le minimum
+maximum pour le maximum
+moyenne pour la moyenne
+ecart-type pour l'écart-type.
 ```
 
 Lorsque vous effectuez un calcul basique, il se fera successivement selon l'ordre des opérandres. Par exemple, pour l'addition ```+ 78 7 8 12.9```, le calcule sera ```78 + 7 + 8 + 12.9```.
