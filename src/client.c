@@ -31,7 +31,7 @@
 int envoie_recois_message(int socketfd){
 
   char* data;
-  char* code = "nom";
+  char* code = "message";
 
   data = malloc(sizeof(char)*1024);
   json_object json_message;
@@ -78,6 +78,9 @@ int envoie_recois_message(int socketfd){
 
 	  printf("Message recu: %s\n", data);
 
+    // Libération de la mémoire
+    free(data);
+
 	  return 0;
 	}
 
@@ -87,7 +90,6 @@ int envoie_recois_message(int socketfd){
 	 * Fonction qui analyse une image
  * */
 void analyse(char *pathname, char *data){
-
 
   // Init
   couleur_compteur *cc = analyse_bmp_image(pathname);
@@ -217,6 +219,9 @@ int envoie_info_calcul(int socketfd){
 
   printf("Resultat recu: %s\n", data);
 
+  // Libération de la mémoire
+  free(data);
+
   return 0;
 }
 
@@ -307,6 +312,9 @@ int envoie_couleurs(int socketfd){
 
   printf("Message recu: %s\n", data);
 
+  // Libération de la mémoire
+  free(data);
+
   return 0;
 }
 
@@ -341,7 +349,7 @@ int envoie_nom_de_client(int socketfd){
   // Envoie du nom
   int write_status = write(socketfd, data, strlen(data));
 
-  // Erreyr d'envoi
+  // Erreur d'envoi
   if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
@@ -360,6 +368,9 @@ int envoie_nom_de_client(int socketfd){
   }
 
   printf("%s\n", data);
+
+  // Libération de la mémoire
+  free(data);
 
   return 0;
 }
@@ -451,6 +462,8 @@ int envoie_balises(int socketfd){
 
   printf("Message recu: %s\n", data);
 
+  // Libération de la mémoire
+  free(data);
 
  return 0;
 }
@@ -464,6 +477,8 @@ int main(int argc, char **argv){
   // Init
   int socketfd;
   struct sockaddr_in server_addr;
+  char* hostname = malloc(sizeof(char)*1024);
+
 
   // Message à afficher si aucun paramètre n'est donné au client
   if (argc < 2)
@@ -489,6 +504,18 @@ int main(int argc, char **argv){
   int connect_status = connect(socketfd, (struct sockaddr *)&server_addr, sizeof(server_addr));
   if (connect_status < 0){
     perror("connection serveur");
+    exit(EXIT_FAILURE);
+  }
+
+  // On envoie le nom du client au serveur
+  gethostname(hostname, 256);
+  hostname[256] = '\0';
+
+  int write_status = write(socketfd, hostname, strlen(hostname));
+
+  // Erreur d'envoi
+  if (write_status < 0){
+    perror("erreur nom client");
     exit(EXIT_FAILURE);
   }
 
@@ -518,5 +545,8 @@ int main(int argc, char **argv){
  }
 
   close(socketfd);
+  free(hostname);
+
+  return 0;
 }
 

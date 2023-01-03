@@ -55,10 +55,10 @@ Les codes d'opérateurs sont les suivants:
 - pour la soustraction
 * pour la multiplication
 / pour la division
-minimum pour le minimum
-maximum pour le maximum
-moyenne pour la moyenne
-ecart-type pour l'écart-type.
+min pour le minimum
+max pour le maximum
+avg pour la moyenne
+ecart pour l'écart-type.
 ```
 
 Lorsque vous effectuez un calcul basique, il se fera successivement selon l'ordre des opérandres. Par exemple, pour l'addition ```+ 78 7 8 12.9```, le calcule sera ```78 + 7 + 8 + 12.9```.
