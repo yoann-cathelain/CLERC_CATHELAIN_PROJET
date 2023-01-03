@@ -23,5 +23,12 @@
  * Il faut un argument : l'identifiant de la socket
  */
 int envoie_recois_message(int socketfd);
+void analyse(char *pathname, char *data);
+int envoie_couleursPred(int socketfd, char *pathname);
+int envoie_info_calcul(int socketfd);
+int envoie_couleurs(int socketfd);
+int envoie_nom_de_client(int socketfd);
+int envoie_balises(int socketfd);
+int main(int argc, char **argv);
 
 #endif

@@ -10,3 +10,12 @@
  * L'objectif principal de ce code est d'effectuer des tests unitaires et
  *  fonctionnels sur les différents composants créés dans ce projet.
  */
+#ifndef __TESTES_H__
+#define __TESTES_H__
+
+void testOperations();
+void testJson();
+void testProtocole();
+void testMultiClient();
+
+#endif

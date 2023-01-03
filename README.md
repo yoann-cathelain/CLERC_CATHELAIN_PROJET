@@ -98,11 +98,14 @@ Le serveur vous enverra alors un graphique contenant les couleurs prédominantes
 * string
 * unistd
 * math
+* arpa/inet
+* netdb
 
 ## Références
 
 * Documentation de fonctions C: <https://koor.fr>
 * Forum de développement: <https://stackoverflow.com/>
+* Pour la base de la gestion multi-clients: <https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/>
 
 ## Difficultés
 

@@ -24,3 +24,5 @@ json_object json_decode(char *);
 
 //Fonction qui transforme une chaîne de caractère au format JSON
 char* json_encode(json_object *, char);
+
+void removeChar(char *str, char garbage);
