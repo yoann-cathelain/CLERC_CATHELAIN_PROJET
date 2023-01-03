@@ -13,9 +13,7 @@
 #ifndef __TESTES_H__
 #define __TESTES_H__
 
-void testOperations();
-void testJson();
-void testProtocole();
-void testMultiClient();
+void testOperations(char* code, char* data);
+void testJson(char* whoami, char* jsonCode, char* expectedCode);
 
 #endif

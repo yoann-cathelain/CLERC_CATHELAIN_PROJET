@@ -26,6 +26,9 @@
 // Pour le threading
 #include <arpa/inet.h>
 #include <netdb.h>
+
+// Pour les tests
+#include "testes.h"
 /*
  *
  * Créé un plot de couleur
@@ -358,21 +361,27 @@ int recois_envoie_message(int socketfd, char* data){
    */
   printf("Message recu: %s\n", data);
   json_message = json_decode(data);
-
+  
   // Si le message commence par le mot: 'message:'
   if (strcmp(json_message.code, "message") == 0){
 	renvoie_message(client_socket_fd, data);
+  testJson("serveur", json_message.code, "message");
   }
-  // Si le message commence par le mot: 'calcule:'
+  // Si le message commence par le mot: 'calcul:'
   else if(strcmp(json_message.code, "calcul") == 0){
 	renvoi_res_calcul(client_socket_fd, data);
+  testJson("serveur", json_message.code, "calcul");
+
   }
   // Si le message commence par le mot: 'nom:'
   else if(strcmp (json_message.code, "nom") == 0){
 	renvoie_nom_client(client_socket_fd, data);
+  testJson("serveur", json_message.code, "nom");
+
   }
   // Si le message commence par le mot: 'couleurs:'
   else if(strcmp(json_message.code, "couleurs") == 0){
+  testJson("serveur", json_message.code, "couleurs");
  
 	// Init
 	json_object json_res;
@@ -398,7 +407,8 @@ int recois_envoie_message(int socketfd, char* data){
   }
   // Si le message commence par le mot: 'balises:'
   else if (strcmp(json_message.code, "balises") == 0){
-  
+  testJson("serveur", json_message.code, "balises");
+    
 	  // Init
 	  json_object json_res;
 	  json_res.code = malloc(sizeof(char)*1024);
@@ -596,6 +606,7 @@ int main(){
         // Sinon c'est un messsage du client
         else{
           recois_envoie_message(sd, buffer);
+          memset(buffer, 0, 1024);
         }
       }
     }

@@ -21,7 +21,7 @@
 #include "client.h"
 #include "bmp.h"
 #include "json.h"
-
+#include "testes.h"
 
 
 /*
@@ -76,6 +76,7 @@ int envoie_recois_message(int socketfd){
 	    return -1;
 	  }
 
+    testOperations("message", json_message.code);
 	  printf("Message recu: %s\n", data);
 
     // Libération de la mémoire
@@ -217,6 +218,7 @@ int envoie_info_calcul(int socketfd){
     return -1;
   }
 
+  testOperations("calcul", json_calcul.code);
   printf("Resultat recu: %s\n", data);
 
   // Libération de la mémoire
@@ -310,6 +312,7 @@ int envoie_couleurs(int socketfd){
     return -1;
   }
 
+  testOperations("couleurs", couleur_json.code);
   printf("Message recu: %s\n", data);
 
   // Libération de la mémoire
@@ -367,6 +370,7 @@ int envoie_nom_de_client(int socketfd){
     return -1;
   }
 
+  testOperations("nom", json_nom.code);
   printf("%s\n", data);
 
   // Libération de la mémoire
@@ -460,6 +464,7 @@ int envoie_balises(int socketfd){
     return -1;
   }
 
+  testOperations("balises", balises_json.code);
   printf("Message recu: %s\n", data);
 
   // Libération de la mémoire
