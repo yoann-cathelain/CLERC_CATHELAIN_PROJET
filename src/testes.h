@@ -14,6 +14,8 @@
 #define __TESTES_H__
 
 void testOperations(char* code, char* data);
-void testJson(char* whoami, char* jsonCode, char* expectedCode);
+void testJson(char* whoami, char* code, char* valeurs);
+void testProtocole(char* clientSide, char* serverSide, char* socketNo);
+void testMultiUsers();
 
 #endif

@@ -362,26 +362,22 @@ int recois_envoie_message(int socketfd, char* data){
   printf("Message recu: %s\n", data);
   json_message = json_decode(data);
   
-  // Si le message commence par le mot: 'message:'
+  // Si le message commence par le mot: 'message' ou un test de protocole
   if (strcmp(json_message.code, "message") == 0){
 	renvoie_message(client_socket_fd, data);
-  testJson("serveur", json_message.code, "message");
   }
   // Si le message commence par le mot: 'calcul:'
   else if(strcmp(json_message.code, "calcul") == 0){
 	renvoi_res_calcul(client_socket_fd, data);
-  testJson("serveur", json_message.code, "calcul");
 
   }
   // Si le message commence par le mot: 'nom:'
   else if(strcmp (json_message.code, "nom") == 0){
 	renvoie_nom_client(client_socket_fd, data);
-  testJson("serveur", json_message.code, "nom");
 
   }
   // Si le message commence par le mot: 'couleurs:'
   else if(strcmp(json_message.code, "couleurs") == 0){
-  testJson("serveur", json_message.code, "couleurs");
  
 	// Init
 	json_object json_res;
@@ -407,7 +403,6 @@ int recois_envoie_message(int socketfd, char* data){
   }
   // Si le message commence par le mot: 'balises:'
   else if (strcmp(json_message.code, "balises") == 0){
-  testJson("serveur", json_message.code, "balises");
     
 	  // Init
 	  json_object json_res;
@@ -430,6 +425,30 @@ int recois_envoie_message(int socketfd, char* data){
 
 	  // Renvoi du message
   	renvoie_message(client_socket_fd, json_encode(&json_res, '\x32'));
+  } 
+  // Si le messsage est un test de JSON
+  else if(strcmp(json_message.code, "testJSON") == 0){
+      // Init
+    json_object json_test;
+
+    // Décodage du JSON
+    json_test = json_decode(data);
+
+    // Test de la compréhension du JSON côté client
+    testJson("serveur", json_test.code, json_test.valeurs);
+  }
+  // Si le message est un test de protocole
+  else if(strcmp(json_message.code, "testProt") == 0){
+
+    // Init
+    char* socketNo = malloc(sizeof(char)*2);
+    sprintf(socketNo, "%d", client_socket_fd);
+
+    // Renvoi du message
+    write(client_socket_fd, data, 1024);
+
+    // Renvoi du numéro de socket
+    send(client_socket_fd, socketNo, 2, 0);
   }
   else{
     plot(data);
