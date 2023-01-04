@@ -23,6 +23,7 @@
 #include "json.h"
 #include "validation.h"
 
+#include "testes.h"
 
 
 /*
@@ -85,6 +86,9 @@ int envoie_recois_message(int socketfd){
 
 	  printf("Message recu: %s\n", data);
 
+    // Libération de la mémoire
+    free(data);
+
 	  return 0;
 	}
 
@@ -95,12 +99,15 @@ int envoie_recois_message(int socketfd){
  * */
 void analyse(char *pathname, char *data){
 
-
   // Init
   couleur_compteur *cc = analyse_bmp_image(pathname);
+  json_object json_image;
+  char* code = "image";
+  json_image.code = malloc(strlen(code)+1);
+  json_image.valeurs = malloc(sizeof(char)*1024);
   int count;
   int nbCoul = 31;
-  strcpy(data, "image: ");
+  strcpy(data, "");
 
   //Demande le nombre de couleurs <=30
   while(nbCoul > 30){
@@ -134,7 +141,12 @@ void analyse(char *pathname, char *data){
   }
 
   // Enlever la dernière virgule
-  data[strlen(data) - 1] = '\0';
+  data[strlen(data) - 1] = '\x32';
+
+  // Formatage du JSON
+  json_image.code = code;
+  json_image.valeurs = data;
+  strcpy(data, json_encode(&json_image, '\x44'));
 }
 
 
@@ -144,9 +156,11 @@ void analyse(char *pathname, char *data){
  * */
 int envoie_couleursPred(int socketfd, char *pathname)
 {
-  char data[1024];
-  memset(data, 0, sizeof(data));
+  char* data = malloc(sizeof(char)*1024);
   analyse(pathname, data);
+
+  // Attendre le serveur
+  sleep(1);
 
   int write_status = write(socketfd, data, strlen(data));
   if (write_status < 0)
@@ -154,7 +168,8 @@ int envoie_couleursPred(int socketfd, char *pathname)
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
   }
-
+ 
+  free(data);
   return 0;
 }
 
@@ -219,6 +234,9 @@ int envoie_info_calcul(int socketfd){
   }
 
   printf("Resultat recu: %s\n", data);
+
+  // Libération de la mémoire
+  free(data);
 
   return 0;
 }
@@ -315,6 +333,10 @@ int envoie_couleurs(int socketfd){
   }
 
   printf("Message recu: %s\n", data);
+
+  // Libération de la mémoire
+  free(data);
+
   return 0;
 }
 
@@ -328,6 +350,9 @@ int envoie_nom_de_client(int socketfd){
   char* data;
   char* code = "nom";
   json_object json_nom;
+
+  // Attendre le serveur avant d'envoyer le nom
+  sleep(1);
 
   data = malloc(sizeof(char)*1024);
   json_nom.code = malloc(sizeof(char)*1024);
@@ -354,7 +379,7 @@ int envoie_nom_de_client(int socketfd){
   // Envoie du nom
   int write_status = write(socketfd, data, strlen(data));
 
-  // Erreyr d'envoi
+  // Erreur d'envoi
   if (write_status < 0){
     perror("erreur ecriture");
     exit(EXIT_FAILURE);
@@ -373,6 +398,9 @@ int envoie_nom_de_client(int socketfd){
   }
 
   printf("%s\n", data);
+
+  // Libération de la mémoire
+  free(data);
 
   return 0;
 }
@@ -470,6 +498,8 @@ int envoie_balises(int socketfd){
 
   printf("Message recu: %s\n", data);
 
+  // Libération de la mémoire
+  free(data);
 
  return 0;
 }
@@ -483,6 +513,8 @@ int main(int argc, char **argv){
   // Init
   int socketfd;
   struct sockaddr_in server_addr;
+  char* hostname = malloc(sizeof(char)*1024);
+
 
   // Message à afficher si aucun paramètre n'est donné au client
   if (argc < 2)
@@ -511,6 +543,18 @@ int main(int argc, char **argv){
     exit(EXIT_FAILURE);
   }
 
+  // On envoie le nom du client au serveur
+  gethostname(hostname, 256);
+  hostname[256] = '\0';
+
+  int write_status = write(socketfd, hostname, strlen(hostname));
+
+  // Erreur d'envoi
+  if (write_status < 0){
+    perror("erreur nom client");
+    exit(EXIT_FAILURE);
+  }
+
   // Si on a un paramètres, on envoie/reçoit le bon code de message
   if (argc == 2){ 
 	if(strcmp(argv[1], "nom") == 0){
@@ -528,6 +572,61 @@ int main(int argc, char **argv){
 	else if(strcmp(argv[1], "message") == 0){
 		envoie_recois_message(socketfd);
 	}
+  else if(strcmp(argv[1], "testOp") == 0){
+    
+  }
+  else if(strcmp(argv[1], "testJson") == 0){
+
+    // Init
+    json_object json_test;
+    char* data = "{\"code\": \"testJSON\",\"valeur\": [\"testJSON\"]}";
+
+    // Décodage du JSON
+    json_test = json_decode(data);
+
+    // Test de la compréhension du JSON côté client
+    testJson("client", json_test.code, json_test.valeurs);
+
+    // Envoi du JSON pour test côté serveur
+    write(socketfd, data, strlen(data));
+
+  }
+  else if(strcmp(argv[1], "testProt") == 0){
+
+    // Init
+    json_object json_test;
+    json_test.code = malloc(sizeof(char)*8);
+    json_test.valeurs = malloc(sizeof(char)*8);
+    char* rcvdData = malloc(sizeof(char)*1024);
+    char* socketNo = malloc(sizeof(char)*2);
+
+    strcpy(json_test.code, "testProt");
+    strcpy(json_test.valeurs, "testProt");
+
+    char* sentData = json_encode(&json_test, '\x32');
+
+    // Envoi
+    sleep(1);
+    write(socketfd, sentData, strlen(sentData));
+
+    // Réception
+    read(socketfd, rcvdData, 1024);
+    recv(socketfd, socketNo, sizeof(socketNo), 0);
+
+    // Test du protocole
+    testProtocole(sentData, rcvdData, socketNo);
+
+    // Libération de la mémoire
+    free(rcvdData);
+    free(socketNo);
+    free(sentData);
+    free(json_test.code);
+    free(json_test.valeurs);
+    
+  }
+  else if(strcmp(argv[1],"testMulti") == 0){
+    testMultiUsers();
+  }
 	else{
 
 		// Envoyer et recevoir les couleurs prédominantes d'une image au format BMP (argv[1])
@@ -537,5 +636,8 @@ int main(int argc, char **argv){
  }
 
   close(socketfd);
+  free(hostname);
+
+  return 0;
 }
 
