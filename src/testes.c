@@ -29,7 +29,7 @@ void testOperations(char* code, char* data){
 
 // Teste que le client et le serveur comprennent les messages JSON
 void testJson(char* whoami, char* code, char* valeurs){
-    if(strcmp(code, "testJSON") == 0 && strcmp(valeurs, "testJSON") == 0){
+    if(strcmp(code, "testJson") == 0 && strcmp(valeurs, "testJson") == 0){
         printf("Test d'analyse du JSON par le %s: validé\n", whoami);
     }else{
         printf("Test d'analyse du JSON par le %s: non validé\n", whoami);

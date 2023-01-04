@@ -15,7 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "json.h"
-
+#include <ctype.h>
+#include <unistd.h>
 
 /*
  *  Fonction de validation de format JSON
@@ -211,7 +212,7 @@ int validate_json_calcul(char* json_string){
     int validate_res;
     if(strcmp(json_calcul.code, "calcul") == 0){
 		while(i < strlen(json_calcul.valeurs)){
-        	if(json_calcul.valeurs[i] == '+' || json_calcul.valeurs[i] == '-' || json_calcul.valeurs[i] == '*' || json_calcul.valeurs[i] == '/'){
+        	if(json_calcul.valeurs[i] == '+' || json_calcul.valeurs[i] == '-' || json_calcul.valeurs[i] == '*' || json_calcul.valeurs[i] == '/' ){
 				validate_res = 1;
 			}else if(json_calcul.valeurs[i] >= '0' && json_calcul.valeurs[i] <= '9'){
 				validate_res = 1;

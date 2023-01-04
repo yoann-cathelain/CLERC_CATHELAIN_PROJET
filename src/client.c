@@ -579,7 +579,7 @@ int main(int argc, char **argv){
 
     // Init
     json_object json_test;
-    char* data = "{\"code\": \"testJSON\",\"valeur\": [\"testJSON\"]}";
+    char* data = "{\"code\": \"testJson\",\"valeur\": [\"testJson\"]}";
 
     // Décodage du JSON
     json_test = json_decode(data);

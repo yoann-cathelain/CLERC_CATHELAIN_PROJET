@@ -427,7 +427,7 @@ int recois_envoie_message(int socketfd, char* data){
   	renvoie_message(client_socket_fd, json_encode(&json_res, '\x32'));
   } 
   // Si le messsage est un test de JSON
-  else if(strcmp(json_message.code, "testJSON") == 0){
+  else if(strcmp(json_message.code, "testJson") == 0){
       // Init
     json_object json_test;
 
