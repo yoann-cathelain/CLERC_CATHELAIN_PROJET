@@ -84,6 +84,7 @@ Cette commande fonctionne de la même manière que les couleurs. Le serveur vous
 ```bash
 ./client <fichier_bmp>
 ```
+Le serveur vous enverra alors un graphique contenant les couleurs prédominantes de l'image envoyée.
 
 * Pour effectuer des tests, vous pouvez lancer le client suivi d'un code de test. Les tests possibles sont les suivants:
 
@@ -93,8 +94,11 @@ testJson pour tester la compréhension des messages JSON
 testProt pour tester le respect du protocole
 testMulti pour tester le support de plusieurs clients
 ```
+Par exemple:
 
-Le serveur vous enverra alors un graphique contenant les couleurs prédominantes de l'image envoyée.
+```bash
+./client testJson
+```
 
 ## Bibliothèques
 
