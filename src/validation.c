@@ -197,8 +197,7 @@ int validate_json_nom(char* json_string){
     }else {
         validate_res = 0;
     }
-	free(json_nom.code);
-	free(json_nom.valeurs);
+
     return validate_res;
 }
 
@@ -228,8 +227,6 @@ int validate_json_calcul(char* json_string){
     }else {
         validate_res = 0;
     }
-	free(json_calcul.code);
-	free(json_calcul.valeurs);
     return validate_res;
 }
 
@@ -258,8 +255,7 @@ int validate_json_message(char* json_string){
     }else {
         validate_res = 0;
     }
-	free(json_message.code);
-	free(json_message.valeurs);
+
     return validate_res;
 }
 
@@ -288,8 +284,7 @@ int validate_json_couleurs(char* json_string){
     }else {
         validate_res = 0;
     }
-	free(json_couleurs.code);
-	free(json_couleurs.valeurs);
+
     return validate_res;
 }
 
@@ -304,7 +299,7 @@ int validate_json_balises(char* json_string){
     if(strcmp(json_balises.code, "balises") == 0){
 		while(i < strlen(json_balises.valeurs)){
 			json_balises.valeurs[i] = tolower(json_balises.valeurs[i]);
-        	if((json_balises.valeurs[i] >= 'a' && json_balises.valeurs[i] <= 'z') || json_balises.valeurs[i] == '#' || (json_balises.valeurs[i] >= '0' && json_couleurs.valeurs[i] <= '9')){
+        	if((json_balises.valeurs[i] >= 'a' && json_balises.valeurs[i] <= 'z') || json_balises.valeurs[i] == '#' || (json_balises.valeurs[i] >= '0' && json_balises.valeurs[i] <= '9')){
 				validate_res = 1;
 			}else if(json_balises.valeurs[i] == ','){
 				i++;
@@ -318,8 +313,7 @@ int validate_json_balises(char* json_string){
     }else {
         validate_res = 0;
     }
-	free(json_balises.code);
-	free(json_balises.valeurs);
+
     return validate_res;
 }
 
