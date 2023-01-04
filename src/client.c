@@ -32,7 +32,7 @@
 int envoie_recois_message(int socketfd){
 
   char* data;
-  char* code = "nom";
+  char* code = "message";
 
   data = malloc(sizeof(char)*1024);
   json_object json_message;
@@ -58,6 +58,12 @@ int envoie_recois_message(int socketfd){
     strcat(json_message.valeurs, message);
 
     data = json_encode(&json_message, '\x32');
+    if(validate_json_message(data) != 0) {
+    printf("JSON valide\n");
+    }else {
+    printf("JSON non valide\n");
+  }
+
 
 	  int write_status = write(socketfd, data, strlen(data));
 	  if (write_status < 0)
@@ -187,10 +193,10 @@ int envoie_info_calcul(int socketfd){
   strcat(json_calcul.valeurs, calcul);
 
   data = json_encode(&json_calcul, '\x32');
-  if(validate_json(data) != 0) {
-    printf("JSON valide");
+  if(validate_json_calcul(data) != 0) {
+    printf("JSON valide\n");
   }else {
-    printf("JSON non valide");
+    printf("JSON non valide\n");
   }
 
   // Envoie les données
@@ -280,6 +286,12 @@ int envoie_couleurs(int socketfd){
   }
 
   data = json_encode(&couleur_json, '\x44');
+  printf("%s\n", data);
+  if(validate_json_couleurs(data) != 0) {
+    printf("JSON valide\n");
+  }else {
+    printf("JSON non valide\n");
+  }
 
   // Envoi des couleurs
   int write_status = write(socketfd, data, strlen(data));
@@ -303,7 +315,6 @@ int envoie_couleurs(int socketfd){
   }
 
   printf("Message recu: %s\n", data);
-
   return 0;
 }
 
@@ -334,6 +345,11 @@ int envoie_nom_de_client(int socketfd){
   strcat(data, json_nom.valeurs);
 
   data = json_encode(&json_nom, '\x32');
+      if(validate_json_nom(data) != 0) {
+      printf("JSON valide\n");
+    }else {
+      printf("JSON non valide\n");
+    }
 
   // Envoie du nom
   int write_status = write(socketfd, data, strlen(data));
@@ -424,6 +440,12 @@ int envoie_balises(int socketfd){
   }
 
   data = json_encode(&balises_json, '\x44');
+  printf("%s\n", data);
+  if(validate_json(data) != 0) {
+    printf("JSON valide\n");
+  }else {
+    printf("JSON non valide\n");
+  }
 
   // Envoi des balises
   int write_status = write(socketfd, data, strlen(data));

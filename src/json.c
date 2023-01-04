@@ -52,8 +52,8 @@ json_object json_decode(char* json_string)
 
     }
     free(data);
-    code = strtok(code,": ");
-    code = strtok(NULL,": \"");
+    code = strtok(code,":");
+    code = strtok(NULL,":\"");
 
     for(unsigned int i =0 ; i < strlen(code); i++){
         if(code[i] == '"'){
@@ -61,7 +61,7 @@ json_object json_decode(char* json_string)
         }
     }
 
-    value = strtok(value, ": [");
+    value = strtok(value, ":[");
 
     for(unsigned int i = 0; i < strlen(value); i++){
         if(value[i] == '"' || value[i] == ']'){
@@ -87,7 +87,7 @@ char* json_encode(json_object *str, char delim){
     datatmp = malloc(sizeof(char)*4096);
     data = malloc(sizeof(char) * 4096);
 
-    sprintf(json_string, "{\"code\": \"%s\",\"valeur\": [", str->code);
+    sprintf(json_string, "{\"code\":\"%s\",\"valeur\":[", str->code);
     if(delim == '\x32'){
         datatmp = strtok(str->valeurs, " ");
         for(unsigned int i = 0; i < strlen(datatmp); i++){
