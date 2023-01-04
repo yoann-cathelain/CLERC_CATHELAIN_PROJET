@@ -1,6 +1,6 @@
 # Projet de programmation C
 
-Ce dépôt contient un projet universitaire de programmation C. Il s'agit d'un serveur TCP qui permet d'effectuer des calculs, d'envoyer des messages, de récupérer des couleurs et des balises d'image, et d'analyser les couleurs d'une image.
+Ce dépôt contient un projet universitaire de programmation C. Il s'agit d'un serveur TCP qui permet d'effectuer des calculs, d'envoyer des messages, de récupérer des couleurs et des balises d'image, et d'analyser les couleurs d'une image. Il est aussi possible d'effectuer différents tests de fonctionnement du client et du serveur.
 
 Pour fonctionner, le programme utilise gnuplot afin afficher les graphiques. Si vous ne l'avez pas vous pouvez l'installer avec la commande suivante sur un système Debian:
 
@@ -55,10 +55,10 @@ Les codes d'opérateurs sont les suivants:
 - pour la soustraction
 * pour la multiplication
 / pour la division
-minimum pour le minimum
-maximum pour le maximum
-moyenne pour la moyenne
-ecart-type pour l'écart-type.
+min pour le minimum
+max pour le maximum
+avg pour la moyenne
+ecart pour l'écart-type.
 ```
 
 Lorsque vous effectuez un calcul basique, il se fera successivement selon l'ordre des opérandres. Par exemple, pour l'addition ```+ 78 7 8 12.9```, le calcule sera ```78 + 7 + 8 + 12.9```.
@@ -85,6 +85,15 @@ Cette commande fonctionne de la même manière que les couleurs. Le serveur vous
 ./client <fichier_bmp>
 ```
 
+* Pour effectuer des tests, vous pouvez lancer le client suivi d'un code de test. Les tests possibles sont les suivants:
+
+```text
+testOp pour tester le support des opérations
+testJson pour tester la compréhension des messages JSON
+testProt pour tester le respect du protocole
+testMulti pour tester le support de plusieurs clients
+```
+
 Le serveur vous enverra alors un graphique contenant les couleurs prédominantes de l'image envoyée.
 
 ## Bibliothèques
@@ -98,11 +107,16 @@ Le serveur vous enverra alors un graphique contenant les couleurs prédominantes
 * string
 * unistd
 * math
+* arpa/inet
+* netdb
+* signal
+* sys/wait
 
 ## Références
 
 * Documentation de fonctions C: <https://koor.fr>
 * Forum de développement: <https://stackoverflow.com/>
+* Pour la base de la gestion multi-clients: <https://www.geeksforgeeks.org/socket-programming-in-cc-handling-multiple-clients-on-server-without-multi-threading/>
 
 ## Difficultés
 
