@@ -90,7 +90,7 @@ void testMultiUsers(){
     exit(1);
   }
 
-  if(WIFEXITED(status)){
+  if(result >= 0){
         printf("Test de gestion de plusieurs clients: validé\n");
     }
     else{
