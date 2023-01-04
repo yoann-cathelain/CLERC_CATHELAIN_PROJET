@@ -479,7 +479,7 @@ int main(){
   char* hostname = malloc(sizeof(char)*256);
   fd_set readfds;
   FILE* file;
-  char* filename = malloc(sizeof(char)*4);
+  char* filename = malloc(sizeof(char)*16);
 
   // Initialiser le tableau de sockets à 0 pour dire que le socket n'est pas utilisé
   for (int i = 0; i < max_clients; i++){
